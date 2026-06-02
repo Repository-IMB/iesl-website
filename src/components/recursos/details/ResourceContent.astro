@@ -28,9 +28,8 @@ const { resource } = Astro.props;
     <SmartImage src={resource.image} alt={resource.title} class="w-full h-full object-cover absolute inset-0" />
   </div>
 
-  <!-- Contenido Principal -->
-  <!-- Usamos clases utilitarias personalizadas para imitar la tipografía del diseño en lugar de importar un plugin grande como prose -->
-  <article class="max-w-none text-gray-700">
-    <Fragment set:html={resource.contentHtml} />
+  <!-- Contenido Principal (cuerpo MDX inyectado vía slot, estilado con prose) -->
+  <article class="prose prose-lg max-w-none text-gray-700 prose-headings:font-poppins prose-headings:text-gray-900 prose-a:text-primary">
+    <slot />
   </article>
 </div>

@@ -3,8 +3,10 @@ import HeroSection from "../../components/recursos/HeroSection.astro";
 import ContactSection from "../../components/home/ContactSection.astro";
 import ResourceCard from "../../components/recursos/ResourceCard.astro";
 import Section from "../../components/ui/Section.astro";
-import { resources } from "../../data/recursos.data";
+import { getResources } from "../../data/recursos.data";
 import Layout from "../../layouts/Layout.astro";
+
+const resources = await getResources();
 ---
 
 <Layout 
