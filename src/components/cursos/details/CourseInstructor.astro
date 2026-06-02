@@ -3,40 +3,45 @@ import type { CourseInstructor } from "../../../types/course.type";
 import SmartImage from "../../ui/SmartImage.astro";
 
 interface Props {
-  instructor?: CourseInstructor;
+  instructors?: CourseInstructor[];
 }
 
-const { instructor } = Astro.props;
+const { instructors = [] } = Astro.props;
+const hasInstructors = instructors.some((i) => i.name?.trim());
 ---
 
-{instructor && (
+{hasInstructors && (
   <div class="mt-16">
     <h2 class="font-bold text-gray-900 text-3xl tracking-tight mb-8">
-      Profesor
+      {instructors.filter((i) => i.name?.trim()).length > 1 ? "Profesores" : "Profesor"}
     </h2>
 
-    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 bg-white p-4 md:p-6 rounded-3xl border-2 border-primary/20">
-      <!-- Avatar -->
-      <div class="w-24 h-24 rounded-3xl overflow-hidden shrink-0 border-4 border-gray-50">
-        <SmartImage 
-          src={instructor.avatar} 
-          alt={instructor.name} 
-          class="w-full h-full object-cover"
-        />
-      </div>
+    <div class="grid sm:grid-cols-2 gap-6">
+      {instructors.filter((i) => i.name?.trim()).map((instructor) => (
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 bg-white p-4 md:p-6 rounded-3xl border-2 border-primary/20">
+          <!-- Avatar -->
+          <div class="w-24 h-24 rounded-3xl overflow-hidden shrink-0 border-4 border-gray-50">
+            <SmartImage
+              src={instructor.avatar}
+              alt={instructor.name}
+              class="w-full h-full object-cover"
+            />
+          </div>
 
-      <!-- Info -->
-      <div class="flex-1">
-        <h3 class="font-bold text-gray-900 text-xl mb-1">
-          {instructor.name}
-        </h3>
-        <p class="text-primary font-bold text-sm mb-4">
-          {instructor.role}
-        </p>
-        <p class="text-gray-600 leading-relaxed">
-          {instructor.bio}
-        </p>
-      </div>
+          <!-- Info -->
+          <div class="flex-1">
+            <h3 class="font-bold text-gray-900 text-xl mb-1">
+              {instructor.name}
+            </h3>
+            <p class="text-primary font-bold text-sm mb-4">
+              {instructor.role}
+            </p>
+            <p class="text-gray-600 leading-relaxed">
+              {instructor.bio}
+            </p>
+          </div>
+        </div>
+      ))}
     </div>
   </div>
 )}

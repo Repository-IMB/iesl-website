@@ -6,7 +6,7 @@ import Button from "../ui/Button.astro";
 import { getFeaturedCourses } from "../../data/courses.data";
 import { ROUTES } from "../../constants/routes";
 
-const featuredCourses = getFeaturedCourses();
+const featuredCourses = await getFeaturedCourses();
 ---
 
 <Section class="bg-gray-50/50">
@@ -29,6 +29,7 @@ const featuredCourses = getFeaturedCourses();
           details={course.details}
           rating={course.rating}
           href={`/cursos/${course.slug}`}
+          image={course.image}
         />
       ))
     }

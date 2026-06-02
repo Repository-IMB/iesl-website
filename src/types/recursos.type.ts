@@ -1,32 +1,18 @@
-import type { IconName } from "./icons";
+import type { CollectionEntry } from "astro:content";
 
-export type ResourceCategory = 
-  | "Productividad" 
-  | "Liderazgo" 
-  | "Desarrollo profesional" 
-  | "Crecimiento profesional"
-  | "Networking";
+// Datos crudos del frontmatter (schema en src/content.config.ts)
+export type ResourceData = CollectionEntry<"blog">["data"];
 
-export type IncludedResource = {
-  label: string;
-  icon?: IconName;
-  url?: string; // Optional download URL
-};
-
-export type Resource = {
+// Modelo de vista que reciben los componentes: data + slug + fecha formateada
+export type Resource = ResourceData & {
   slug: string;
-  title: string;
-  description: string;
-  category: ResourceCategory;
-  author: string;
   date: string;
-  image: string; // e.g. "/images/placeholder.webp"
-  contentHtml?: string;
-  includedResource?: IncludedResource;
-  relatedSlugs?: string[]; // Slugs of related resources to display at the bottom
 };
 
-// Types for the main /recursos page data
+export type ResourceCategory = ResourceData["category"];
+export type IncludedResource = NonNullable<ResourceData["includedResource"]>;
+
+// Tipos para la metadata de la página /recursos (no son ítems de contenido)
 export type RecursosHeroSection = {
   badge: "Blog y recursos" | string;
   title: {

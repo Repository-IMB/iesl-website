@@ -1,8 +1,7 @@
 ---
+import { getCollection, render, type CollectionEntry } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import Section from "../../components/ui/Section.astro";
-import { courses } from "../../data/courses.data";
-import type { Course } from "../../types/course.type";
 
 import CourseHeader from "../../components/cursos/details/CourseHeader.astro";
 import CourseSidebar from "../../components/cursos/details/CourseSidebar.astro";
@@ -14,17 +13,20 @@ import SmartImage from "../../components/ui/SmartImage.astro";
 import certificateImg from "../../assets/images/cursos/certificado.webp";
 
 export async function getStaticPaths() {
-  return courses.map((course) => ({
-    params: { slug: course.slug },
-    props: { course },
+  const entries = await getCollection("courses");
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
   }));
 }
 
 interface Props {
-  course: Course;
+  entry: CollectionEntry<"courses">;
 }
 
-const { course } = Astro.props;
+const { entry } = Astro.props;
+const course = entry.data;
+const { Content } = await render(entry);
 ---
 
 <Layout title={course.title} description={course.description}>
@@ -38,7 +40,9 @@ const { course } = Astro.props;
         <CourseHeader course={course} />
         
         <div class="mt-14">
-          <CourseContentBody course={course} />
+          <CourseContentBody course={course}>
+            <Content />
+          </CourseContentBody>
         </div>
       </div>
 

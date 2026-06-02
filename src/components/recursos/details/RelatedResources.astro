@@ -9,7 +9,7 @@ interface Props {
   resource: Resource;
 }
 const { resource } = Astro.props;
-const relatedArticles = getRelatedResources(resource);
+const relatedArticles = await getRelatedResources(resource);
 ---
 {relatedArticles.length > 0 && (
   <Section class="bg-white border-t border-gray-100 py-16 md:py-20">

@@ -12,17 +12,15 @@ const { course } = Astro.props;
 ---
 
 <div class="flex flex-col">
-  <!-- Sobre este curso -->
-  {course.about && (
-    <section class="mb-14">
-      <h2 class="font-bold text-gray-900 text-3xl tracking-tight mb-6">
-        Sobre este curso
-      </h2>
-      <p class="text-gray-600 leading-relaxed">
-        {course.about}
-      </p>
-    </section>
-  )}
+  <!-- Sobre este curso (cuerpo MDX inyectado vía slot) -->
+  <section class="mb-14">
+    <h2 class="font-bold text-gray-900 text-3xl tracking-tight mb-6">
+      Sobre este curso
+    </h2>
+    <div class="prose prose-lg max-w-none text-gray-600">
+      <slot />
+    </div>
+  </section>
 
   <!-- Lo que vas a aprender -->
   {course.learnings && course.learnings.length > 0 && (
@@ -47,7 +45,7 @@ const { course } = Astro.props;
   <!-- Contenido del curso -->
   <CourseModules modules={course.modules} />
 
-  <!-- Profesor -->
-  <CourseInstructor instructor={course.instructor} />
+  <!-- Profesores -->
+  <CourseInstructor instructors={course.instructors} />
 
 </div>

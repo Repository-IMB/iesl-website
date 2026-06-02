@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme inline {
   --font-poppins: var(--font-poppins);
@@ -75,4 +76,14 @@
   .card-base {
     @apply bg-white p-6 rounded-2xl border-2 border-primary/20 hover:shadow hover:border-primary/50;
   }
+}
+
+/* Resalta los placeholders [..] que el usuario debe completar dentro de los
+   bloques de código (ver src/lib/rehype-prompt-placeholders.mjs). */
+.prompt-fill {
+  color: #1f2937;
+  background-color: #fde047; /* amber: estilo marcador */
+  font-weight: 700;
+  padding: 0.05em 0.3em;
+  border-radius: 0.3em;
 }

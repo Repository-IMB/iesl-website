@@ -1,0 +1,262 @@
+---
+title: "Coach de OKRs con IA: pack de prompts encadenados"
+description: "Un pack de prompts en cadena para diseñar, calibrar y dar seguimiento a OKRs trimestrales con IA, basado en el método Radical Focus de Christina Wodtke."
+category: "Productividad"
+author: "IESL"
+publishDate: 2026-06-02
+image: ../../../assets/images/placeholder.webp
+includedResource:
+  label: "Pack de prompts OKR encadenados"
+  icon: "material-symbols:download-rounded"
+  url: "#"
+relatedSlugs:
+  - "como-usar-okrs"
+  - "productividad-profunda"
+draft: false
+---
+
+Definir OKRs es fácil; definir buenos OKRs y darles seguimiento sin perder el foco es lo difícil. La mayoría de los equipos terminan con objetivos esponjosos, *Key Results* que en realidad son tareas disfrazadas, y un seguimiento que se diluye a las tres semanas.
+
+Este pack resuelve eso convirtiendo a la IA en tu **coach de OKRs**: un asistente con un rol fijo que te acompaña desde derivar el Objetivo del trimestre hasta la retrospectiva final, paso a paso. Está basado en el método *Radical Focus* de Christina Wodtke.
+
+## Qué es un pack "encadenado" (chain) y por qué funciona
+
+En lugar de un único prompt gigante que intenta hacer todo, el pack es una **cadena de eslabones**. Cargas una sola vez el rol del coach (Prompt 0) y luego corres los prompts 1 a 6 **en orden**. Cada eslabón termina con un bloque `<handoff>`: un resumen estructurado del resultado validado en ese paso, que copias y pegas como entrada del siguiente.
+
+Esto tiene dos ventajas frente a improvisar:
+
+- **No se pierde el contexto.** Cada paso arranca de un resultado ya pulido, no de cero.
+- **Cada decisión se valida antes de avanzar.** No calibras la ambición de un *Key Result* que todavía es una tarea mal escrita.
+
+**Técnicas de prompting que usa por dentro:** rol persistente (*system prompt*), razonamiento encadenado dentro de `<razonamiento>`, clasificación con ejemplos (*few-shot*), autoevaluación por rúbrica y salida estructurada para encadenar.
+
+## Cómo usar este pack (paso a paso)
+
+1. **Carga el rol una vez.** Pega el **Prompt 0** como instrucción de sistema (*system prompt*) o como primer mensaje de un Proyecto de Claude. El coach confirmará el rol y quedará a la espera.
+2. **Corre los eslabones en orden, del 1 al 6.** No te saltes pasos: cada uno depende del `<handoff>` del anterior.
+3. **Copia el `<handoff>` de cada respuesta** y pégalo donde el siguiente prompt te lo pide (entre las etiquetas que indica).
+4. **Completa solo lo que está entre corchetes** `[...]` con tus datos reales. Si te falta un dato, el coach te hará *una* pregunta y se detendrá: respóndela y sigue.
+5. **Durante el trimestre, reusa el Prompt 5 cada lunes** para el check-in semanal, y cierra con el Prompt 6 al final del trimestre.
+
+> Regla de oro del método: **1 Objetivo y máximo 3 Key Results** por trimestre. Si la IA o tú proponen más, recorten. El foco es el punto.
+
+> 💡 Dentro de los prompts, **todo lo que aparece resaltado entre corchetes `[...]` es lo que completas tú** con tus datos. El resto del texto se pega tal cual.
+
+## El flujo completo de un vistazo
+
+| Prompt | Para qué sirve | Qué te entrega |
+|---|---|---|
+| **0** | Carga el rol del coach (una vez) | Confirmación del rol |
+| **1** | Derivar el Objetivo desde tu estrategia | El Objetivo del trimestre |
+| **2** | Generar y auditar los Key Results | 3 KRs que triangulan (número, calidad, dinero) |
+| **3** | Calibrar la ambición de cada KR | KRs en la "zona sana" (~70% de éxito) |
+| **4** | Auditar la alineación con la empresa | El set final aprobado |
+| **5** | Check-in semanal (cada lunes) | Prioridades de la semana + estado actualizado |
+| **6** | Cierre y retrospectiva del trimestre | Calificación + 3 aprendizajes |
+
+---
+
+## Prompt 0 — Rol del Coach (cárgalo una sola vez)
+
+Define quién es el coach, sus principios y cómo razona. **Cárgalo como *system prompt* antes que nada**; no lo repitas en cada paso.
+
+```
+# ROL
+Eres "Coach OKR", un coach experto entrenado en el método Radical Focus de Christina Wodtke.
+Acompañas a equipos a diseñar, calibrar y dar seguimiento a OKRs trimestrales.
+
+# PRINCIPIOS QUE SIEMPRE APLICAS
+- Foco radical: 1 Objetivo y máximo 3 Key Results por trimestre. Si proponen más, recortas.
+- El Objetivo inspira pero no es ridículo. Rechazas los dos extremos: vago/esponjoso o plano/operativo.
+- Los Key Results son RESULTADOS medibles, nunca tareas. Si ves una tarea, la reescribes como resultado.
+- Triangulación: un buen set combina un número duro, una métrica de calidad y una de dinero.
+- Ambición calibrada: una buena meta incomoda pero no condena; el éxito ronda el 70%.
+- La nota final importa menos que el aprendizaje: la retrospectiva manda.
+
+# CÓMO RAZONAS
+Antes de cada respuesta piensa paso a paso dentro de <razonamiento>...</razonamiento>: ahí evalúas,
+puntúas y descartas opciones. Luego das la respuesta final FUERA de esas etiquetas, limpia y accionable,
+con el "porqué" en una sola línea. El usuario no necesita ver tus dudas, solo tu mejor resultado.
+
+# REGLAS DURAS
+- Nunca inventes datos que no te dieron (cifras, contexto, resultados de mercado).
+- Si te falta algo imprescindible, haz UNA sola pregunta precisa y detente.
+- Responde en español, directo y cálido, sin relleno.
+
+Confirma que entendiste el rol en una sola frase y espera mi primer input.
+```
+
+## Prompt 1 — Derivar el Objetivo (desde la estrategia)
+
+Convierte tu estrategia del trimestre en un Objetivo que inspire sin volverse una tarea. El coach genera 5 borradores, los puntúa por rúbrica y te recomienda el mejor.
+
+**Cuándo:** justo después de cargar el rol. · **Entrega:** un `<handoff>` con el Objetivo elegido.
+
+```
+ENTRADA:
+<estrategia>[PEGA tu estrategia del trimestre]</estrategia>
+<mision>[PEGA tu misión a 5 años — opcional]</mision>
+
+TAREA: derivar el Objetivo del trimestre.
+
+PROCEDIMIENTO (dentro de <razonamiento>, en este orden):
+1. Extrae de la estrategia la apuesta central del trimestre: qué se intenta ganar.
+2. Genera 5 borradores de Objetivo.
+3. Puntúa cada borrador de 0 a 2 en cada criterio:
+   - Inspira (¿da ganas de levantarse a trabajarlo?)
+   - Concreto (¿significa algo, no es esponjoso?)
+   - No-tarea (¿es una dirección, no un entregable?)
+   - Fiel a la estrategia
+4. Suma puntajes, descarta los bajos y pule los 2 mejores.
+
+SALIDA (fuera de <razonamiento>):
+- Los 2 Objetivos finalistas, cada uno con su puntaje total y una línea: "por qué inspira / qué lo haría fallar".
+- Tu recomendación, con justificación en una frase.
+- Al final, un bloque exactamente así:
+  <handoff>OBJETIVO: [el objetivo elegido]</handoff>
+```
+
+## Prompt 2 — Generar y auditar los Key Results
+
+Toma el Objetivo y produce 3 *Key Results* que sean **resultados, no tareas**, y que triangulen (un número duro, una métrica de calidad y una de dinero). Usa ejemplos para distinguir tarea de resultado y reescribir las tareas.
+
+**Cuándo:** con el `<handoff>` del Prompt 1. · **Entrega:** un `<handoff>` con el Objetivo + 3 KRs.
+
+```
+ENTRADA:
+<objetivo>[PEGA el contenido del <handoff> anterior]</objetivo>
+<contexto_negocio>[1-3 frases: qué hace el equipo y qué datos puede medir]</contexto_negocio>
+
+TAREA: producir 3 Key Results que sean resultados (no tareas) y que triangulen.
+
+PROCEDIMIENTO (dentro de <razonamiento>):
+1. Responde la pregunta de Wodtke: "¿Cómo sabremos que logramos el Objetivo?".
+2. Lluvia de 10 formas de medirlo. Mezcla obvias y raras; las raras suelen dar las mejores señales.
+3. Clasifica cada idea como RESULTADO o TAREA, usando estos ejemplos como guía:
+   - "Lanzar la campaña de email" → TAREA (entregable). Reescritura: "30% de los nuevos usuarios
+     activa su cuenta en los primeros 7 días".
+   - "Tener 5 reuniones con clientes" → TAREA. Reescritura: "8 de cada 10 clientes entrevistados
+     confirman que pagarían por la función".
+   - "Bajar el churn mensual de 6% a 4%" → RESULTADO (mide un outcome). Se queda.
+   - "Publicar 12 artículos" → TAREA. Reescritura: "El tráfico orgánico mensual sube de 5k a 12k visitas".
+4. De los RESULTADOS, elige 3 que triangulen: 1 número duro, 1 de calidad/satisfacción, 1 de dinero.
+
+SALIDA:
+- Los 3 KRs finales, con línea base → meta cuando aplique.
+- Para cada uno: tipo (Número / Calidad / Dinero) y por qué es resultado, no tarea.
+- Bloque:
+  <handoff>
+  OBJETIVO: [...]
+  KR1 (Número): [...]
+  KR2 (Calidad): [...]
+  KR3 (Dinero): [...]
+  </handoff>
+```
+
+## Prompt 3 — Calibrar la ambición
+
+Revisa cada KR y lo ubica en una zona: fácil (súbele la vara), sana (déjalo) o imposible (bájalo a algo retador pero creíble). El objetivo es que el éxito ronde el 70%.
+
+**Cuándo:** con el `<handoff>` del Prompt 2. · **Entrega:** un `<handoff>` con los 3 KRs recalibrados.
+
+```
+ENTRADA: <okr>[PEGA el <handoff> con Objetivo + 3 KRs]</okr>
+
+TAREA: calibrar la ambición de cada KR.
+
+PROCEDIMIENTO (dentro de <razonamiento>): clasifica cada KR en una zona, usando solo la lógica
+del negocio que te dieron (no inventes cifras de mercado):
+- ZONA FÁCIL (me estoy protegiendo): casi seguro de lograr → sube la vara.
+- ZONA SANA: incomoda pero es posible (~70% de probabilidad de éxito) → déjalo.
+- ZONA IMPOSIBLE: el equipo lo verá como condena → bájalo a algo retador pero creíble.
+
+SALIDA:
+- Tabla: KR | zona detectada | ajuste propuesto | por qué.
+- Bloque <handoff> con los 3 KRs ya recalibrados.
+```
+
+## Prompt 4 — Auditar la alineación (cascada)
+
+Comprueba que tus KRs de equipo empujen de verdad los OKRs de la empresa. Marca cada uno como alineado, débil o huérfano y propone reconexiones sin inventar OKRs de más.
+
+**Cuándo:** con tu `<handoff>` recalibrado + el OKR de la empresa. · **Entrega:** el `<handoff>` final aprobado del trimestre.
+
+```
+ENTRADA:
+<okr_empresa>[PEGA el OKR de la empresa]</okr_empresa>
+<okr_equipo>[PEGA tu <handoff> recalibrado]</okr_equipo>
+
+TAREA: auditar la coherencia de la cascada.
+
+PROCEDIMIENTO (dentro de <razonamiento>): para cada KR del equipo, traza a qué Objetivo o KR de
+la empresa contribuye y márcalo como:
+- ALINEADO (empuja claramente algo de la empresa)
+- DÉBIL (contribuye poco o indirecto)
+- HUÉRFANO (no conecta con nada)
+
+SALIDA:
+- Tabla equipo → empresa con el veredicto de cada KR.
+- Para los DÉBIL/HUÉRFANO: una propuesta concreta de reconexión, sin crear OKRs de más.
+- Si todo está ALINEADO, dilo y no fuerces cambios.
+- Bloque <handoff> con el set final aprobado del trimestre.
+```
+
+## Prompt 5 — Check-in semanal (reusable cada lunes)
+
+El motor del seguimiento. Cada lunes compara tu avance con el ritmo necesario, detecta el KR en riesgo, convierte tus trabas en aprendizajes y te deja 3 prioridades. **Reúsalo todo el trimestre.**
+
+**Cuándo:** cada lunes, con el set final y tu avance. · **Entrega:** un bloque `<estado_actual>` para reusar el lunes siguiente.
+
+```
+ENTRADA:
+<okr>[PEGA el <handoff> final del trimestre]</okr>
+<estado_actual>[PEGA el avance de cada KR + tu check-in de la semana pasada, si ya existe]</estado_actual>
+
+Hoy es lunes. TAREA: conducir el check-in semanal.
+
+PROCEDIMIENTO (dentro de <razonamiento>): compara el avance con la meta y con el ritmo necesario
+para cerrar el trimestre a tiempo. Identifica el KR más en riesgo y por qué.
+
+SALIDA, en este orden:
+1. Pídeme la confianza (1-10) en cada KR. Si ya está en <estado_actual>, comenta la tendencia vs la semana pasada.
+2. Pregúntame qué me frenó la semana pasada y conviértelo en 1 aprendizaje accionable.
+3. Propón máximo 3 prioridades para esta semana, ordenadas por impacto en el KR más en riesgo.
+4. Cierra con la pregunta de viernes para celebrar: "¿cuál fue el mayor win del equipo esta semana?".
+
+Devuelve al final un bloque <estado_actual> actualizado, para reusarlo el próximo lunes.
+```
+
+## Prompt 6 — Cierre del trimestre + retrospectiva
+
+Cierra el ciclo. Califica cada KR sin precisión falsa y, lo más importante, separa causa de síntoma para extraer aprendizajes que pasen al próximo trimestre.
+
+**Cuándo:** al final del trimestre, con los resultados finales. · **Entrega:** 3 aprendizajes + una pregunta semilla para el próximo Objetivo.
+
+```
+ENTRADA:
+<okr>[PEGA el set final]</okr>
+<resultados_finales>[PEGA el valor final alcanzado en cada KR]</resultados_finales>
+
+TAREA: cerrar el trimestre.
+
+PROCEDIMIENTO (dentro de <razonamiento>): califica cada KR de forma aproximada (sin precisión falsa).
+Para cada uno, separa causa de síntoma: ¿el resultado se explica por ejecución, por la calibración
+de la meta, o por un supuesto equivocado en la estrategia?
+
+SALIDA:
+- Calificación aproximada por KR (ej. ~80%).
+- Retro por KR: qué funcionó, qué nos frenó (causa raíz, no síntoma), qué intentar distinto.
+- Los 3 aprendizajes que pasan al próximo trimestre (una línea cada uno).
+- Una pregunta semilla para el Objetivo del trimestre que viene.
+```
+
+## Consejos para sacarle el jugo
+
+- **Respeta el orden.** El valor del pack está en la cadena: cada `<handoff>` alimenta al siguiente. Saltarte el Prompt 3 (calibración) es la forma más rápida de terminar con metas imposibles.
+- **No rellenes con datos inventados.** Si no tienes una línea base, dilo; el coach trabajará con lo que haya en vez de fabricar cifras.
+- **El check-in semanal es lo que de verdad mueve la aguja.** Un set de OKRs perfecto sin seguimiento no sirve. Bloquea 15 minutos cada lunes para el Prompt 5.
+- **Guarda cada `<handoff>` y cada `<estado_actual>`.** Son tu registro del trimestre y la materia prima de la retrospectiva.
+
+---
+
+Método basado en *Radical Focus* de Christina Wodtke. Guía de prompting: [docs.claude.com](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview).

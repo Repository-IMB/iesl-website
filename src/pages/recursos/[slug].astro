@@ -1,27 +1,30 @@
 ---
+import { getCollection, render, type CollectionEntry } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import Section from "../../components/ui/Section.astro";
-import { resources } from "../../data/recursos.data";
-import type { Resource } from "../../types/recursos.type";
+import { toResource } from "../../data/recursos.data";
 
 import ResourceContent from "../../components/recursos/details/ResourceContent.astro";
 import ResourceSidebar from "../../components/recursos/details/ResourceSidebar.astro";
 import RelatedResources from "../../components/recursos/details/RelatedResources.astro";
 import ContactSection from "../../components/home/ContactSection.astro";
 
-// Generar rutas estáticas para cada recurso
+// Generar rutas estáticas para cada artículo
 export async function getStaticPaths() {
-  return resources.map((resource) => ({
-    params: { slug: resource.slug },
-    props: { resource },
+  const entries = await getCollection("blog");
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
   }));
 }
 
 interface Props {
-  resource: Resource;
+  entry: CollectionEntry<"blog">;
 }
 
-const { resource } = Astro.props;
+const { entry } = Astro.props;
+const resource = toResource(entry);
+const { Content } = await render(entry);
 ---
 
 <Layout title={resource.title} description={resource.description}>
@@ -31,7 +34,9 @@ const { resource } = Astro.props;
       
       <!-- Columna Principal Izquierda -->
       <main class="w-full">
-        <ResourceContent resource={resource} />
+        <ResourceContent resource={resource}>
+          <Content />
+        </ResourceContent>
       </main>
 
       <!-- Columna Derecha Sticky -->
