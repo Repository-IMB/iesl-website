@@ -58,14 +58,9 @@ const isActive = (path: string) => {
           </a>
         </div>
       </div>
-      <a 
-        href={ROUTES.BENEFITS} 
-        class:list={["hover:text-primary transition-global", isActive(ROUTES.BENEFITS) && "text-primary"]}
-      >
-        Beneficios
-      </a>
-      <a 
-        href={ROUTES.COMMUNITY} 
+      {/* Link "Beneficios" oculto temporalmente; reactivar cuando la sección esté lista. */}
+      <a
+        href={ROUTES.COMMUNITY}
         class:list={["hover:text-primary transition-global", isActive(ROUTES.COMMUNITY) && "text-primary"]}
       >
         Comunidad
