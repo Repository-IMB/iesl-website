@@ -9,6 +9,9 @@ import rehypePromptPlaceholders from './src/lib/rehype-prompt-placeholders.mjs';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://ieslinstitute.com',
+  // Pre-carga los links internos cuando entran al viewport (mejora la
+  // navegación percibida sin costo en la carga inicial).
+  prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },
   image: {
     domains: ["i.pravatar.cc"],
   },

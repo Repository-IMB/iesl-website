@@ -71,7 +71,7 @@ const positionClasses = {
       {hero.slides.map((slide, index) => (
         <div class={`hero-slide transition-opacity duration-1000 ease-in-out ${index === 0 ? 'relative opacity-100 z-10' : 'absolute inset-0 opacity-0 z-0 pointer-events-none'}`}>
           <div class="aspect-4/3 bg-gray-200 rounded-4xl overflow-hidden shadow-2xl flex items-center justify-center text-gray-400">
-            <SmartImage src={slide.image} alt={`Estudiante IESL ${index + 1}`} loading="eager" class="w-full h-full object-cover" />
+            <SmartImage src={slide.image} alt={`Estudiante IESL ${index + 1}`} loading={index === 0 ? "eager" : "lazy"} class="w-full h-full object-cover" />
           </div>
 
           <FloatingBadge

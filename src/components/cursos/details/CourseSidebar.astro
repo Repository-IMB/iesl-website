@@ -2,12 +2,14 @@
 import type { Course } from "../../../types/course.type";
 import Button from "../../ui/Button.astro";
 import { Icon } from "astro-icon/components";
+import { getWhatsAppLink } from "../../../constants/consts";
 
 interface Props {
   course: Course;
 }
 
 const { course } = Astro.props;
+const whatsappHref = getWhatsAppLink(`Hola, quiero inscribirme en el curso ${course.title}`);
 ---
 
 <div class="bg-white rounded-4xl p-6 border-2 border-primary/20 relative">
@@ -24,15 +26,8 @@ const { course } = Astro.props;
 
   <!-- CTAs -->
   <div class="flex flex-col gap-4 mb-8">
-    <Button href="#" class="w-full justify-center">
+    <Button href={whatsappHref} target="_blank" icon="mdi:whatsapp" class="w-full justify-center">
       Inscribirme al curso
-    </Button>
-    <Button 
-      href="#"
-      variant="secondary" 
-      class="w-full justify-center" 
-    >
-      Quiero recibir información
     </Button>
   </div>
 

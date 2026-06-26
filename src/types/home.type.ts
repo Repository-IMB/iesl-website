@@ -54,6 +54,6 @@ export type WellnessSection = {
   title: SplitTitle;
   description: string;
   slides: FloatingBadge[][];
-  cta: CtaButton;
+  cta?: CtaButton;
 }
 

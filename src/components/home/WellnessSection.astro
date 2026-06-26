@@ -7,7 +7,7 @@ import ImageWithBadge from "../ui/ImageWithBadge.astro";
 import Glow from "../ui/Glow.astro";
 ---
 
-<Section class="bg-gray-50 overflow-hidden relative">
+<Section id="beneficios" class="bg-gray-50 overflow-hidden relative scroll-mt-24">
   <Glow 
     color="bg-teal-50/50"
     size="w-[400px] h-[400px]"
@@ -26,9 +26,11 @@ import Glow from "../ui/Glow.astro";
       <p class="text-gray-600 mb-10 leading-relaxed font-medium">
         {wellness.description}
       </p>
-      <Button href={wellness.cta.href} icon="fluent:arrow-right-16-filled" variant="secondary">
-        {wellness.cta.text}
-      </Button>
+      {wellness.cta && (
+        <Button href={wellness.cta.href} icon="fluent:arrow-right-16-filled" variant="secondary">
+          {wellness.cta.text}
+        </Button>
+      )}
     </div>
 
     <div

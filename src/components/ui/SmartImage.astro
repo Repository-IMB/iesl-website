@@ -18,6 +18,10 @@ const extraProps = { ...props };
 delete extraProps.src;
 delete extraProps.alt;
 
+// Lazy por defecto: solo las imágenes above-the-fold (hero, logo del header)
+// piden loading="eager" explícito.
+if (!("loading" in extraProps)) extraProps.loading = "lazy";
+
 // Caso 1: ESM import (objeto con .src, .width, .height)
 // Caso 2: URL remota (https://...)
 // Caso 3: Ruta pública (/images/...)

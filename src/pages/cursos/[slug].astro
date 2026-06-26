@@ -27,9 +27,49 @@ interface Props {
 const { entry } = Astro.props;
 const course = entry.data;
 const { Content } = await render(entry);
+
+// Módulos e instructores definidos inline en el frontmatter del curso.
+const modules = course.modules;
+const instructors = course.instructors;
+
+// Datos estructurados para rich snippets de cursos en Google.
+const totalHours = parseInt(course.details.totalHours, 10);
+const courseJsonLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "Course",
+  name: course.title,
+  description: course.description,
+  provider: {
+    "@type": "Organization",
+    name: "IESL Institute",
+    url: (Astro.site || Astro.url.origin).toString(),
+  },
+  hasCourseInstance: {
+    "@type": "CourseInstance",
+    courseMode: "Online",
+    ...(Number.isFinite(totalHours) ? { courseWorkload: `PT${totalHours}H` } : {}),
+    instructor: instructors
+      .filter((i) => i.name?.trim())
+      .map((i) => ({ "@type": "Person", name: i.name, jobTitle: i.role })),
+  },
+  ...(course.reviews
+    ? {
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: course.rating,
+          reviewCount: course.reviews,
+        },
+      }
+    : {}),
+};
 ---
 
-<Layout title={course.title} description={course.description}>
+<Layout
+  title={course.title}
+  description={course.description}
+  ogImage={course.image}
+  jsonLd={[courseJsonLd]}
+>
   <!-- Main content del curso -->
   <Section class="py-12 md:py-16">
     <!-- Grid Layout 2 Columnas -->
@@ -40,7 +80,7 @@ const { Content } = await render(entry);
         <CourseHeader course={course} />
         
         <div class="mt-14">
-          <CourseContentBody course={course}>
+          <CourseContentBody course={course} modules={modules} instructors={instructors}>
             <Content />
           </CourseContentBody>
         </div>

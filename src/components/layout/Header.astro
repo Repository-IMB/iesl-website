@@ -1,10 +1,17 @@
 ---
+import { getCollection } from "astro:content";
 import { ROUTES } from "../../constants/routes";
 import { Icon } from "astro-icon/components";
 import SmartImage from "../ui/SmartImage.astro";
 import logo from "../../assets/images/logo-iesl.webp"
 import MobileMenu from "./MobileMenu.astro";
 import Section from "../ui/Section.astro";
+
+const courses = (await getCollection("courses")).map((course) => ({
+  slug: course.id,
+  title: course.data.title,
+  category: course.data.category,
+}));
 
 const pathname = Astro.url.pathname;
 const isActive = (path: string) => {
@@ -29,66 +36,26 @@ const isActive = (path: string) => {
         <Icon name="mdi:chevron-down" class:list={["text-xl group-hover:text-primary transition-global", isActive(ROUTES.COURSES) ? "text-primary" : "text-gray-600"]} />
 
         {/* El dropdown contenedor */}
-        <div class="absolute top-6 left-1/2 p-2 -translate-x-1/2 scale-80 opacity-0 invisible group-hover:opacity-100 group-hover:scale-100 group-hover:visible transition-global origin-top flex min-w-[540px] bg-white border border-gray-100 shadow-xl rounded-3xl z-50 overflow-hidden cursor-default">
-          
-          <!-- Columna Izquierda: Categorías -->
-          <div class="flex flex-col w-1/2 border-r border-gray-50 p-2 gap-1 text-[15px]">
-            <a href="#" class="px-4 py-3 bg-gray-50 rounded-2xl flex items-center justify-between text-gray-900 font-semibold group/cat transition-global">
-              <div class="flex items-center gap-3">
-                <Icon name="fluent:code-24-regular" class="text-primary text-[22px]" />
-                <span>Desarrollo web</span>
+        <div class="absolute top-6 left-1/2 p-2 -translate-x-1/2 scale-80 opacity-0 invisible group-hover:opacity-100 group-hover:scale-100 group-hover:visible transition-global origin-top flex flex-col min-w-[320px] bg-white border border-gray-100 shadow-xl rounded-3xl z-50 overflow-hidden cursor-default">
+          {courses.map((course) => (
+            <a
+              href={ROUTES.CURSO_DETALLE(course.slug)}
+              class="px-4 py-3 hover:bg-gray-50 rounded-2xl flex items-center gap-3 text-gray-900 font-medium transition-global"
+            >
+              <Icon name="solar:graph-up-outline" class="text-primary text-[22px] shrink-0" />
+              <div class="flex flex-col">
+                <span class="font-semibold leading-snug">{course.title}</span>
+                <span class="text-[13px] text-gray-500">{course.category}</span>
               </div>
-              <Icon name="mdi:chevron-right" class="text-gray-900 text-lg" />
             </a>
-            
-            <a href="#" class="px-4 py-3 hover:bg-gray-50 rounded-2xl flex items-center justify-between text-gray-900 font-medium group/cat transition-global">
-              <div class="flex items-center gap-3">
-                <Icon name="solar:graph-up-outline" class="text-primary text-[22px]" />
-                <span>Data</span>
-              </div>
-              <Icon name="mdi:chevron-right" class="text-gray-900 text-lg" />
-            </a>
-            
-            <a href="#" class="px-4 py-3 hover:bg-gray-50 rounded-2xl flex items-center justify-between text-gray-900 font-medium group/cat transition-global">
-              <div class="flex items-center gap-3">
-                <Icon name="fluent:design-ideas-24-regular" class="text-primary text-[22px]" />
-                <span>Diseño</span>
-              </div>
-              <Icon name="mdi:chevron-right" class="text-gray-900 text-lg" />
-            </a>
+          ))}
 
-            <a href="#" class="px-4 py-3 hover:bg-gray-50 rounded-2xl flex items-center justify-between text-gray-900 font-medium group/cat transition-global">
-              <div class="flex items-center gap-3">
-                <Icon name="hugeicons:tie" class="text-primary text-[22px]" />
-                <span>Management</span>
-              </div>
-              <Icon name="mdi:chevron-right" class="text-gray-900 text-lg" />
-            </a>
-
-            <a href="#" class="px-4 py-3 hover:bg-gray-50 rounded-2xl flex items-center justify-between text-gray-900 font-medium group/cat transition-global">
-              <div class="flex items-center gap-3">
-                <Icon name="fluent:briefcase-24-regular" class="text-primary text-[22px]" />
-                <span>Negocios</span>
-              </div>
-              <Icon name="mdi:chevron-right" class="text-gray-900 text-lg" />
-            </a>
-
-            <a href="#" class="px-4 py-3 hover:bg-gray-50 rounded-2xl flex items-center justify-between text-gray-900 font-medium group/cat transition-global">
-              <div class="flex items-center gap-3">
-                <Icon name="hugeicons:megaphone-02" class="text-primary text-[22px]" />
-                <span>Marketing</span>
-              </div>
-              <Icon name="mdi:chevron-right" class="text-gray-900 text-lg" />
-            </a>
-          </div>
-
-          <!-- Columna Derecha: Sub-ítems -->
-          <div class="flex flex-col w-1/2 p-6 gap-5 text-[15px]">
-            <a href="#" class="text-gray-900 font-medium hover:text-primary transition-global">Full stack</a>
-            <a href="#" class="text-gray-900 font-medium hover:text-primary transition-global">Desarrollo web</a>
-            <a href="#" class="text-gray-900 font-medium hover:text-primary transition-global">JavaScript</a>
-            <a href="#" class="text-gray-900 font-medium hover:text-primary transition-global">React Js</a>
-          </div>
+          <a
+            href={ROUTES.COURSES}
+            class="px-4 py-3 mt-1 border-t border-gray-50 text-primary font-semibold text-sm hover:bg-gray-50 rounded-2xl transition-global"
+          >
+            Ver todos los cursos
+          </a>
         </div>
       </div>
       <a 

@@ -1,6 +1,6 @@
 ---
 import type { CourseModule } from "../../../types/course.type";
-import Button from "../../ui/Button.astro";
+import { highlightTerms } from "../../../lib/highlightTerms";
 
 interface Props {
   modules?: CourseModule[];
@@ -19,8 +19,8 @@ const { modules } = Astro.props;
       {modules.map((mod, index) => (
         <details class="group bg-[#F8FDFD] rounded-3xl border border-primary/20 hover:border-primary/40 transition-global">
           <summary class="flex flex-col p-6 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-            <span class="font-bold text-gray-900 leading-tight group-hover:text-primary transition-global select-none">
-              {mod.title}
+            <span class="font-bold text-gray-900 leading-tight group-hover:text-primary transition-global select-text">
+              Módulo {index + 1}: {mod.title}
             </span>
             <div class="flex items-center gap-1.5 mt-2 text-sm font-inter text-gray-500">
               <span>{mod.classesCount} clases</span>
@@ -28,23 +28,18 @@ const { modules } = Astro.props;
               <span>{mod.duration}</span>
             </div>
           </summary>
-          <div class="px-6 pb-6 text-sm text-gray-600">
-            <!-- Desglose de temáticas -->
-            <ul class="list-disc list-inside space-y-1 ml-2">
-              <li>Tema principal 1</li>
-              <li>Tema principal 2</li>
-              <li>Práctica de lo aprendido</li>
-            </ul>
-          </div>
+          {mod.topics && mod.topics.length > 0 && (
+            <div class="px-6 pb-6 text-sm text-gray-600">
+              <!-- Desglose de temáticas -->
+              <ul class="list-disc list-inside space-y-1 ml-2">
+                {mod.topics.map((topic) => (
+                  <li set:html={highlightTerms(topic)} />
+                ))}
+              </ul>
+            </div>
+          )}
         </details>
       ))}
-    </div>
-
-    <!-- CTA de descarga del temario -->
-    <div class="flex justify-center mt-10">
-      <Button variant="secondary" href="#" icon="material-symbols:download-rounded" class="flex-row-reverse">
-  Descargar programa del curso
-</Button>
     </div>
   </div>
 )}
