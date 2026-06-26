@@ -6,7 +6,8 @@ import Button from "../ui/Button.astro";
 import { getFeaturedCourses } from "../../data/courses.data";
 import { ROUTES } from "../../constants/routes";
 
-const featuredCourses = await getFeaturedCourses();
+// Máximo 5 programas en el carrusel destacado.
+const featuredCourses = (await getFeaturedCourses()).slice(0, 5);
 ---
 
 <Section class="bg-gray-50/50">
@@ -16,26 +17,83 @@ const featuredCourses = await getFeaturedCourses();
       Empieza por donde quieras
     </h2>
     <p class="text-gray-600 font-medium">
-      Cursos prácticos y accesibles para impulsar tu carrera
+      Programas prácticos en IA, datos y herramientas para impulsar tu carrera
     </p>
   </div>
-  <div class="grid xl:grid-cols-3 lg:grid-cols-2 gap-8 mb-16">
-    {
-      featuredCourses.map((course) => (
-        <CourseCard
-          title={course.title}
-          description={course.description}
-          tag={course.category}
-          details={course.details}
-          rating={course.rating}
-          href={`/cursos/${course.slug}`}
-          image={course.image}
-        />
-      ))
-    }
+
+  <div class="swiper courses-swiper w-full mb-16">
+    <div class="swiper-wrapper">
+      {
+        featuredCourses.map((course) => (
+          <div class="swiper-slide h-auto pb-2">
+            <CourseCard
+              title={course.title}
+              description={course.description}
+              tag={course.category}
+              details={course.details}
+              rating={course.rating}
+              href={`/cursos/${course.slug}`}
+              image={course.image}
+            />
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="swiper-pagination courses-pagination mt-4 relative"></div>
+    <div class="swiper-button-prev courses-prev hidden md:flex text-primary! select-none"></div>
+    <div class="swiper-button-next courses-next hidden md:flex text-primary! select-none"></div>
   </div>
 
   <Button href={ROUTES.COURSES} icon="fluent:arrow-right-16-filled" class="mx-auto">
     Ver todos los cursos
   </Button>
 </Section>
+
+<script>
+  import Swiper from "swiper";
+  import { Navigation, Pagination, Autoplay } from "swiper/modules";
+  import "swiper/css";
+  import "swiper/css/navigation";
+  import "swiper/css/pagination";
+
+  const initCoursesSwiper = () => {
+    document.querySelectorAll(".courses-swiper").forEach((el) => {
+      const element = el as HTMLElement;
+      new Swiper(element, {
+        modules: [Navigation, Pagination, Autoplay],
+        slidesPerView: 1,
+        spaceBetween: 24,
+        autoplay: { delay: 4500, disableOnInteraction: false },
+        pagination: {
+          el: element.querySelector(".courses-pagination") as HTMLElement,
+          clickable: true,
+        },
+        navigation: {
+          nextEl: element.querySelector(".courses-next") as HTMLElement,
+          prevEl: element.querySelector(".courses-prev") as HTMLElement,
+        },
+        breakpoints: {
+          640: { slidesPerView: 2, spaceBetween: 24 },
+          1024: { slidesPerView: 3, spaceBetween: 32 },
+        },
+      });
+    });
+  };
+
+  initCoursesSwiper();
+  document.addEventListener("astro:after-swap", initCoursesSwiper);
+  document.addEventListener("astro:page-load", initCoursesSwiper);
+</script>
+
+<style>
+  .courses-swiper {
+    padding-bottom: 3rem !important;
+  }
+  .courses-swiper .swiper-pagination {
+    bottom: 0 !important;
+  }
+  .courses-swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
+    background-color: var(--color-primary) !important;
+  }
+</style>

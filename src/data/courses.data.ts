@@ -27,3 +27,22 @@ export const getCategories = async (): Promise<CourseCategory[]> => {
   const courses = await getCourses();
   return [...new Set(courses.map((course) => course.category))];
 };
+
+/**
+ * Equipo docente: instructores únicos (dedup por nombre) presentes en todos los
+ * cursos. Se usa para el carrusel "Nuestro equipo docente" del home.
+ */
+export const getInstructors = async () => {
+  const entries = await getCollection("courses");
+  const all = entries.flatMap((entry) => entry.data.instructors ?? []);
+
+  const seen = new Set<string>();
+  const unique: typeof all = [];
+  for (const instructor of all) {
+    const key = instructor.name.trim().toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    unique.push(instructor);
+  }
+  return unique;
+};

@@ -1,7 +1,6 @@
 ---
 import Button from "../ui/Button.astro";
 import type { IconName } from "../../types/icons";
-import "intl-tel-input/styles";
 
 interface Props {
   submitText: string;
@@ -16,12 +15,18 @@ const {
 } = Astro.props;
 ---
 <script>
-  import intlTelInput from "intl-tel-input";
-
   const phoneInput = document.querySelector("#phone") as HTMLInputElement | null;
-  let iti: ReturnType<typeof intlTelInput> | null = null;
+  let iti: { getNumber: () => string } | null = null;
 
-  if (phoneInput) {
+  // intl-tel-input (~40 KB de JS + CSS y un lookup de geolocalización) se carga
+  // recién cuando el usuario interactúa con el formulario, no en cada página.
+  async function setupPhoneInput() {
+    if (!phoneInput || iti) return;
+    const [{ default: intlTelInput }] = await Promise.all([
+      import("intl-tel-input"),
+      // @ts-expect-error — la entrada CSS del paquete no publica tipos
+      import("intl-tel-input/styles"),
+    ]);
     iti = intlTelInput(phoneInput, {
       initialCountry: "auto",
       geoIpLookup(callback) {
@@ -35,6 +40,7 @@ const {
   }
 
   const form = document.querySelector<HTMLFormElement>("#contact-form");
+  form?.addEventListener("focusin", setupPhoneInput, { once: true });
   const submitBtn = document.querySelector<HTMLButtonElement>("#contact-submit");
   const statusMsg = document.querySelector<HTMLElement>("#form-status");
 

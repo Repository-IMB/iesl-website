@@ -1,14 +1,17 @@
 ---
-import type { Course } from "../../../types/course.type";
+import type { Course, CourseModule, CourseInstructor as CourseInstructorType } from "../../../types/course.type";
 import { Icon } from "astro-icon/components";
 import CourseModules from "./CourseModules.astro";
 import CourseInstructor from "./CourseInstructor.astro";
+import { highlightTerms } from "../../../lib/highlightTerms";
 
 interface Props {
   course: Course;
+  modules?: CourseModule[];
+  instructors?: CourseInstructorType[];
 }
 
-const { course } = Astro.props;
+const { course, modules, instructors } = Astro.props;
 ---
 
 <div class="flex flex-col">
@@ -31,11 +34,11 @@ const { course } = Astro.props;
       <ul class="grid sm:grid-cols-2 gap-4">
         {course.learnings.map(learning => (
           <li class="flex items-start gap-3 text-gray-600">
-            <Icon 
-              name="lucide:circle-check-big" 
-              class="text-primary text-xl shrink-0 mt-0.5" 
+            <Icon
+              name="lucide:circle-check-big"
+              class="text-primary text-xl shrink-0 mt-0.5"
             />
-            {learning}
+            <span set:html={highlightTerms(learning)} />
           </li>
         ))}
       </ul>
@@ -43,9 +46,9 @@ const { course } = Astro.props;
   )}
 
   <!-- Contenido del curso -->
-  <CourseModules modules={course.modules} />
+  <CourseModules modules={modules} />
 
   <!-- Profesores -->
-  <CourseInstructor instructors={course.instructors} />
+  <CourseInstructor instructors={instructors} />
 
 </div>

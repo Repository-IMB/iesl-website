@@ -5,6 +5,7 @@ import SmartImage from "./SmartImage.astro";
 
 interface Props {
   image: string | ImageMetadata;
+  alt?: string;
   badgeTitle: string;
   badgeDescription: string;
   badgeIcon: IconName;
@@ -20,13 +21,13 @@ const badgePositions = {
   "bottom-right": "-right-4 sm:-right-1/2 bottom-10 sm:bottom-20 origin-right",
 };
 
-const { image, badgeTitle, badgeDescription, badgeIcon, badgeColor, class: className, badgePosition } = Astro.props;
+const { image, alt, badgeTitle, badgeDescription, badgeIcon, badgeColor, class: className, badgePosition } = Astro.props;
 ---
 
 <div
   class:list={["bg-gray-200 rounded-3xl text-gray-500 transition-global", className]}
 >
-  <SmartImage src={image} alt="" class="w-full h-full object-cover rounded-3xl"  />
+  <SmartImage src={image} alt={alt ?? badgeTitle} class="w-full h-full object-cover rounded-3xl"  />
 
   <FloatingBadge
     icon={badgeIcon}

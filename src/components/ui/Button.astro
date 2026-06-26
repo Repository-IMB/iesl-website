@@ -10,6 +10,7 @@ interface Props {
   icon?: IconName;
   iconColor?: string;
   type?: "button" | "submit" | "anchor";
+  target?: "_blank" | "_self";
 }
 
 const {
@@ -19,7 +20,8 @@ const {
   class: className = "",
   icon,
   iconColor,
-  type = "anchor"
+  type = "anchor",
+  target
 } = Astro.props;
 
 const Tag = type === "anchor" ? "a" : "button";
@@ -39,6 +41,7 @@ if (type === "anchor" && !href) {
 
 <Tag
   {...(type === "anchor" ? { href } : {})}
+  {...(type === "anchor" && target ? { target, rel: target === "_blank" ? "noopener" : undefined } : {})}
   {...(type !== "anchor" ? { type } : {})}
   {...(id ? { id } : {})}
   class:list={[

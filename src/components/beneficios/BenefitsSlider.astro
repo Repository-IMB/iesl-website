@@ -1,8 +1,5 @@
 ---
 import ImageCard from '../ui/ImageCard.astro';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
 
 interface Props {
   items: { title: string; image?: any }[];
@@ -29,9 +26,13 @@ const { items } = Astro.props;
 </div>
 
 <script>
-  // 3. Importas el JS en la etiqueta script para que Astro lo procese en el cliente
+  // JS y CSS de Swiper importados acá (no en el frontmatter) para que solo
+  // los carguen las páginas que renderizan este componente.
   import Swiper from 'swiper';
   import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+  import 'swiper/css';
+  import 'swiper/css/navigation';
+  import 'swiper/css/pagination';
 
   // 4. Creamos una función de inicio para asegurarnos que soporte 
   // View Transitions si las usas, o carga normal

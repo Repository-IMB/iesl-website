@@ -1,19 +1,48 @@
 ---
-import { Font } from "astro:assets";
+import { Font, getImage } from "astro:assets";
+import type { ImageMetadata } from "astro";
 import "../styles/global.css";
 import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
-import { SITE_TITLE, SITE_DESCRIPTION } from "../constants/consts";
+import { SITE_TITLE, SITE_DESCRIPTION, CONTACT_EMAIL } from "../constants/consts";
+import defaultOgImage from "../assets/images/nosotros/nosotros-hero.webp";
+import logoImage from "../assets/images/logo-iesl.webp";
 
 interface Props {
   title?: string;
   description?: string;
-  image?: string;
+  /** Imagen para previews sociales (portada del curso/artículo). */
+  ogImage?: ImageMetadata;
+  /** Schemas JSON-LD propios de la página (Course, BlogPosting...). */
+  jsonLd?: Record<string, unknown>[];
 }
 
-const { title, description = SITE_DESCRIPTION, image = "/favicon.svg" } = Astro.props;
+const { title, description = SITE_DESCRIPTION, ogImage, jsonLd = [] } = Astro.props;
 const pageTitle = title ? `${title} | ${SITE_TITLE}` : SITE_TITLE;
-const canonicalURL = new URL(Astro.url.pathname, Astro.site || Astro.url.origin);
+const siteOrigin = Astro.site || Astro.url.origin;
+const canonicalURL = new URL(Astro.url.pathname, siteOrigin);
+
+// Las redes (WhatsApp, LinkedIn, Facebook) no renderizan SVG ni recortan bien:
+// se genera un JPG 1200x630 (formato OG estándar) desde la portada de la página
+// o desde la imagen de marca por defecto.
+const ogImg = await getImage({
+  src: ogImage ?? defaultOgImage,
+  width: 1200,
+  height: 630,
+  fit: "cover",
+  format: "jpeg",
+});
+const ogImageURL = new URL(ogImg.src, siteOrigin);
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE_TITLE,
+  url: siteOrigin.toString(),
+  logo: new URL(logoImage.src, siteOrigin).toString(),
+  email: CONTACT_EMAIL,
+};
+const schemas = [organizationSchema, ...jsonLd];
 ---
 <!doctype html>
 <html lang="es">
@@ -34,17 +63,28 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || Astro.url.origin)
 
 		<!-- Open Graph / Facebook -->
 		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content={SITE_TITLE} />
+		<meta property="og:locale" content="es_ES" />
 		<meta property="og:url" content={canonicalURL} />
 		<meta property="og:title" content={pageTitle} />
 		<meta property="og:description" content={description} />
-		<meta property="og:image" content={new URL(image, canonicalURL)} />
+		<meta property="og:image" content={ogImageURL} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
 
 		<!-- Twitter -->
 		<meta property="twitter:card" content="summary_large_image" />
 		<meta property="twitter:url" content={canonicalURL} />
 		<meta property="twitter:title" content={pageTitle} />
 		<meta property="twitter:description" content={description} />
-		<meta property="twitter:image" content={new URL(image, canonicalURL)} />
+		<meta property="twitter:image" content={ogImageURL} />
+
+		<meta name="theme-color" content="#2AB3BA" />
+
+		<!-- Datos estructurados (schema.org) -->
+		{schemas.map((schema) => (
+			<script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+		))}
 	</head>
 	<body class="w-full overflow-x-clip">
   	<Header />

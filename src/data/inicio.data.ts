@@ -4,27 +4,29 @@ import type { ContactSection, Faq } from "../types/shared.type";
 import claseOnline from "../assets/images/inicio/clase-online.webp";
 import manosEstrechadas from "../assets/images/inicio/manos-estrechadas.webp";
 import trabajoEnEquipo from "../assets/images/inicio/trabajo-en-equipo.webp";
-import beneficioHombreYoga from "../assets/images/inicio/beneficio-hombre-realizando-yoga.webp";
-import beneficioMujerMeditando from "../assets/images/inicio/beneficio-mujer-meditando.webp";
 import estudianteClaseOnline from "../assets/images/inicio/estudiante-clase-online.webp";
-import mujerConUnCafe from "../assets/images/inicio/mujer-con-un-cafe.webp";
-import beneficioMujerEnsalada from "../assets/images/inicio/beneficio-mujer-ensalada.webp";
+import workshopAnalisisDatos from "../assets/images/inicio/workshop-analisis-datos.webp";
+import workshopContenidoIa from "../assets/images/inicio/workshop-contenido-ia.webp";
+import workshopPromptEngineering from "../assets/images/inicio/workshop-prompt-engineering.webp";
+import workshopVibeCoding from "../assets/images/inicio/workshop-vibe-coding.webp";
+import workshopAutomatizacion from "../assets/images/inicio/workshop-automatizacion.webp";
+import accesoDeporvida from "../assets/images/beneficios/acceso-deporvida.webp";
 import { ROUTES } from "../constants/routes";
 
 // ─── HERO ───────────────────────────────────────────────────────────────────
 export const hero: HomeHeroSection = {
-  badge: "Educación y bienestar pensado para vos",
+  badge: "Educación práctica potenciada con IA",
   badgeIcon: "mdi:heart"  ,
   title: {
     static: "Estudia, crece y",
-    highlight: "conecta", 
-    end: "con personas como vos.",
+    highlight: "potencia tu trabajo con IA",
+    end: "sin importar tu profesión.",
   },
   description:
-    "Cursos accesibles, comunidad activa y desarrollo personal para estudiantes y jóvenes profesionales que quieren crecer sin sacrificar su bienestar.",
+    "Cursos prácticos y accesibles, con workshops de inteligencia artificial gratis y de por vida, para que apliques IA y herramientas tecnológicas en tu día a día —sin importar tu área ni tu nivel técnico.",
   cta: {
     primary: { text: "Ver cursos", href: ROUTES.COURSES },
-    secondary: { text: "Conoce los beneficios", href: ROUTES.BENEFITS },
+    secondary: { text: "Conoce los beneficios", href: "#beneficios" },
   },
   slides: [
     {
@@ -54,9 +56,9 @@ export const hero: HomeHeroSection = {
           color: "primary",
         },
         {
-          icon: "ph:gift",
-          title: "Beneficios",
-          description: "Incluidos con tu curso",
+          icon: "boxicons:brain",
+          title: "Workshops de IA",
+          description: "Gratis y de por vida",
           color: "red",
         },
       ],
@@ -79,7 +81,7 @@ export const about: AboutSection = {
       segments: [
         { text: "Por eso creamos IESL Institute: cursos que no te vacían el bolsillo, " },
         { text: "con horarios flexibles que respetan su vida", highlight: true },
-        { text: " y con beneficios que cuidan su bienestar." },
+        { text: " y con workshops de IA incluidos para potenciar tu trabajo." },
       ],
     },
   ],
@@ -107,10 +109,10 @@ export const about: AboutSection = {
       color: "orange",
     },
     {
-      icon: "solar:heart-outline",
-      title: "Bienestar incluido",
+      icon: "mdi:rocket-launch-outline",
+      title: "IA aplicada a tu trabajo",
       description:
-        "Beneficios reales para cuidarte mientras crecés: yoga, mindfulness, descuentos y más.",
+        "Workshops y micro cursos de IA gratis y de por vida para potenciar tu trabajo en cualquier área.",
       color: "red",
     },
   ],
@@ -138,20 +140,23 @@ export const community: CommunitySection = {
 // ─── BIENESTAR ──────────────────────────────────────────────────────────────
 export const wellness: WellnessSection = {
   badge: "Incluído con su curso",
-  title: { static: "Más que un curso:", highlight: "una comunidad que te acompaña." },
+  title: { static: "Más que un curso:", highlight: "potenciá tu trabajo con inteligencia artificial." },
   description:
-    "Al inscribirte a cualquier curso IESL accedes automáticamente a beneficios pensados para cuidar tu bienestar mientras crecés profesionalmente.",
+    "Al inscribirte a cualquier curso IESL sumás workshops de IA totalmente gratis y de por vida, pensados para que potencies tu trabajo y aprendas a usar inteligencia artificial y herramientas tecnológicas, sin importar tu área ni tu nivel técnico.",
   slides: [
     [
-      { icon: "streamline-ultimate:yoga-half-moon-pose-1", title: "Clases de yoga", description: "Clases en vivo para desconectar", color: "red", image: beneficioHombreYoga },
-      { icon: "hugeicons:yoga-02", title: "Mindfulness", description: "Técnicas para manejar el estrés", color: "orange", image: beneficioMujerMeditando },
+      { icon: "boxicons:brain", title: "Prompt Engineering para IA", description: "Workshop gratis y de por vida", color: "primary", image: workshopPromptEngineering },
+      { icon: "fluent:code-24-regular", title: "Vibe coding", description: "Crea apps sin saber programar — gratis", color: "purple", image: workshopVibeCoding },
     ],
     [
-      { icon: "fluent:briefcase-24-regular", title: "Dtos. en cafés", description: "Para estudiar donde quieras", color: "primary", image: mujerConUnCafe },
-      { icon: "fluent:people-team-20-regular", title: "Nutrición", description: "Aprende a comer para estar mejor", color: "purple", image: beneficioMujerEnsalada },
+      { icon: "boxicons:thunder", title: "Automatización de procesos", description: "Automatiza tu trabajo — gratis", color: "orange", image: workshopAutomatizacion },
+      { icon: "mdi:clock-outline", title: "Acceso de por vida", description: "Tus cursos y workshops, para siempre", color: "red", image: accesoDeporvida },
+    ],
+    [
+      { icon: "octicon:graph-16", title: "Análisis de datos con IA", description: "Decisiones sin saber programar — gratis", color: "red", image: workshopAnalisisDatos },
+      { icon: "fluent:design-ideas-24-regular", title: "Creación de contenido con IA", description: "Textos, imágenes y más — gratis", color: "primary", image: workshopContenidoIa },
     ]
   ],
-  cta: { text: "Ver todos los beneficios", href: ROUTES.BENEFITS },
 };
 
 // ─── TESTIMONIOS ────────────────────────────────────────────────────────────
@@ -186,23 +191,28 @@ export const testimonials: TestimonialCard[] = [
 export const faqs: Faq[] = [
   {
     question: "¿Los cursos son 100% online?",
-    answer: "..."
+    answer:
+      "Sí, los cursos son 100% online y en vivo, con sesiones dinámicas y orientadas a tu crecimiento profesional.",
   },
   {
     question: "¿Incluyen certificado?",
-    answer: "...",
+    answer:
+      "Sí. Incluimos certificados modulares con ID de autenticidad y visibles en LinkedIn, para que puedas avanzar en tu carrera.",
   },
   {
     question: "¿Qué pasa si no puedo ver las clases en vivo?",
-    answer: "...",
+    answer:
+      "Las grabaciones quedan disponibles en el aula virtual hasta 1 año después de la finalización del curso.",
   },
   {
     question: "¿Los beneficios se activan automáticamente?",
-    answer: "...",
+    answer:
+      "Sí. Desde nuestra comunidad tenés acceso a todos nuestros workshops y micro cursos en inteligencia artificial.",
   },
   {
     question: "¿Puedo hacer más de un curso a la vez?",
-    answer: "...",
+    answer:
+      "Claro. Los cursos se complementan entre sí y te permiten alcanzar certificaciones progresivas, todas visibles desde tu perfil público de estudiante.",
   },
 ];
 

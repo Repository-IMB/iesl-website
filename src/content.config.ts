@@ -29,7 +29,7 @@ const BLOG_CATEGORIES = [
 
 // ─── Cursos ─────────────────────────────────────────────────────────────────
 const slugFromIndex = ({ entry }: { entry: string }) =>
-  entry.replace(/\/index\.(md|mdx)$/i, "");
+  entry.replace(/\/index\.(md|mdx|ya?ml)$/i, "");
 
 const courses = defineCollection({
   loader: glob({
@@ -53,15 +53,20 @@ const courses = defineCollection({
       featured: z.boolean().default(false),
       priceBadge: z.string().optional(),
       learnings: z.array(z.string()).default([]),
+      // Módulos del curso definidos inline. El título NO lleva el prefijo
+      // "Módulo N:"; la numeración la pone el componente según la posición.
       modules: z
         .array(
           z.object({
             title: z.string(),
             duration: z.string(),
             classesCount: z.number(),
+            topics: z.array(z.string()).default([]),
           })
         )
         .default([]),
+      // Instructores definidos inline (2-3 por curso). avatar usa el helper
+      // image() del schema; referenciar con ruta relativa al .mdx.
       instructors: z
         .array(
           z.object({
@@ -69,6 +74,7 @@ const courses = defineCollection({
             role: z.string(),
             avatar: image(),
             bio: z.string(),
+            linkedin: z.string().url().optional(),
           })
         )
         .default([]),

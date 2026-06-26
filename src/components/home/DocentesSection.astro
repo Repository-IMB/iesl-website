@@ -1,0 +1,121 @@
+---
+import Section from "../ui/Section.astro";
+import InfoBadge from "../ui/InfoBadge.astro";
+import SmartImage from "../ui/SmartImage.astro";
+import { Icon } from "astro-icon/components";
+import { getInstructors } from "../../data/courses.data";
+import { truncateText } from "../../lib/truncate";
+
+const instructors = await getInstructors();
+---
+
+<Section class="bg-gray-50/50">
+  <div class="text-center max-w-2xl mx-auto mb-16">
+    <InfoBadge text="Equipo docente" />
+    <h2 class="font-bold text-gray-900 tracking-tight text-3xl md:text-4xl mt-3">
+      Aprende de nuestro equipo docente
+    </h2>
+    <p class="text-gray-600 font-medium mt-4">
+      Profesionales en activo que combinan experiencia real con las últimas
+      herramientas de inteligencia artificial.
+    </p>
+  </div>
+
+  <div class="swiper docentes-swiper w-full">
+    <div class="swiper-wrapper">
+      {
+        instructors.map((instructor) => (
+          <div class="swiper-slide h-auto pb-2">
+            <article class="relative w-full bg-white rounded-3xl border-2 border-primary/15 p-8 h-full flex flex-col items-center text-center transition-global hover:shadow-lg">
+              {instructor.linkedin && (
+                <a
+                  href={instructor.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`LinkedIn de ${instructor.name}`}
+                  class="absolute top-4 right-4 text-gray-300 hover:text-primary transition-global"
+                >
+                  <Icon name="mdi:linkedin" class="text-2xl" />
+                </a>
+              )}
+
+              <div class="w-24 h-24 rounded-3xl overflow-hidden border-4 border-gray-50 mb-4 shrink-0">
+                <SmartImage
+                  src={instructor.avatar}
+                  alt={instructor.name}
+                  class="w-full h-full object-cover"
+                />
+              </div>
+
+              <h3 class="font-bold text-gray-900 text-lg leading-tight">
+                {instructor.name}
+              </h3>
+              <p class="text-primary font-bold text-sm mb-3">{instructor.role}</p>
+
+              <p class="text-gray-600 text-sm leading-relaxed line-clamp-4">
+                {truncateText(instructor.bio)}
+              </p>
+            </article>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="swiper-pagination docentes-pagination mt-4 relative"></div>
+    <div class="swiper-button-prev docentes-prev hidden md:flex text-primary! select-none"></div>
+    <div class="swiper-button-next docentes-next hidden md:flex text-primary! select-none"></div>
+  </div>
+</Section>
+
+<script>
+  import Swiper from "swiper";
+  import { Navigation, Pagination, Autoplay } from "swiper/modules";
+  import "swiper/css";
+  import "swiper/css/navigation";
+  import "swiper/css/pagination";
+
+  const initDocentesSwiper = () => {
+    document.querySelectorAll(".docentes-swiper").forEach((el) => {
+      const element = el as HTMLElement;
+      new Swiper(element, {
+        modules: [Navigation, Pagination, Autoplay],
+        slidesPerView: 1,
+        spaceBetween: 24,
+        autoplay: { delay: 5000, disableOnInteraction: false },
+        pagination: {
+          el: element.querySelector(".docentes-pagination") as HTMLElement,
+          clickable: true,
+        },
+        navigation: {
+          nextEl: element.querySelector(".docentes-next") as HTMLElement,
+          prevEl: element.querySelector(".docentes-prev") as HTMLElement,
+        },
+        breakpoints: {
+          640: { slidesPerView: 2, spaceBetween: 24 },
+          1024: { slidesPerView: 3, spaceBetween: 32 },
+        },
+      });
+    });
+  };
+
+  initDocentesSwiper();
+  document.addEventListener("astro:after-swap", initDocentesSwiper);
+  document.addEventListener("astro:page-load", initDocentesSwiper);
+</script>
+
+<style>
+  .docentes-swiper {
+    padding-bottom: 3rem !important;
+  }
+  /* Estira cada slide a la altura del más alto: todas las cards quedan iguales. */
+  .docentes-swiper .swiper-slide {
+    height: auto;
+    display: flex;
+  }
+  .docentes-swiper .swiper-pagination {
+    bottom: 0 !important;
+  }
+  .docentes-swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
+    background-color: var(--color-primary) !important;
+  }
+</style>

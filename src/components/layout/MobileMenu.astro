@@ -1,7 +1,13 @@
 ---
+import { getCollection } from "astro:content";
 import { Icon } from "astro-icon/components";
 import { ROUTES } from "../../constants/routes";
 import Button from "../ui/Button.astro";
+
+const courses = (await getCollection("courses")).map((course) => ({
+  slug: course.id,
+  title: course.data.title,
+}));
 ---
 
 <!-- Overlay base for the menu -->
@@ -27,12 +33,9 @@ import Button from "../ui/Button.astro";
       </summary>
       <div class="flex flex-col gap-4 mt-4 pl-4 border-l-2 border-primary/20 text-gray-600">
         <a href={ROUTES.COURSES} class="hover:text-primary transition-colors font-semibold text-gray-900">Ver todos los cursos</a>
-        <a href="#" class="hover:text-primary transition-colors">Desarrollo web</a>
-        <a href="#" class="hover:text-primary transition-colors">Data</a>
-        <a href="#" class="hover:text-primary transition-colors">Diseño</a>
-        <a href="#" class="hover:text-primary transition-colors">Management</a>
-        <a href="#" class="hover:text-primary transition-colors">Negocios</a>
-        <a href="#" class="hover:text-primary transition-colors">Marketing</a>
+        {courses.map((course) => (
+          <a href={ROUTES.CURSO_DETALLE(course.slug)} class="hover:text-primary transition-colors">{course.title}</a>
+        ))}
       </div>
     </details>
     

@@ -5,24 +5,26 @@ import AboutSection from "../components/home/AboutSection.astro";
 import CoursesSection from "../components/home/CoursesSection.astro";
 import CommunitySection from "../components/home/CommunitySection.astro";
 import WellnessSection from "../components/home/WellnessSection.astro";
-import CertificationsSection from "../components/shared/CertificationsSection.astro";
-import TestimonialsSection from "../components/shared/TestimonialsSection.astro";
-import { testimonials } from "../data/inicio.data";
+import DocentesSection from "../components/home/DocentesSection.astro";
+// Testimonios de estudiantes ocultos hasta tener más alumnos; reactivar luego.
+// import TestimonialsSection from "../components/shared/TestimonialsSection.astro";
+// import { testimonials } from "../data/inicio.data";
 import FaqSection from "../components/home/FaqSection.astro";
 import ContactSection from "../components/home/ContactSection.astro"; 
 ---
 
 <Layout 
-  title="Inicio" 
-  description="IESL Institute - Crecimiento profesional con enfoque humano. Estudia, crece y conecta con nuestra comunidad y beneficios pensados para vos."
+  title="Inicio"
+  description="IESL Institute - Aprende a aplicar inteligencia artificial y herramientas tecnológicas en tu trabajo, sin importar tu área. Cursos prácticos y accesibles con workshops de IA gratis y de por vida."
 >
   <HeroSection />
   <AboutSection />
   <CoursesSection />
   <CommunitySection />
   <WellnessSection />
-  <!-- <CertificationsSection /> -->
-  <TestimonialsSection testimonials={testimonials} />
+  <DocentesSection />
+  {/* Testimonios de estudiantes ocultos hasta tener más alumnos */}
+  {/* <TestimonialsSection testimonials={testimonials} /> */}
   <FaqSection />
   <ContactSection />
 </Layout>

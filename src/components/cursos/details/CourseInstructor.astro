@@ -1,6 +1,7 @@
 ---
 import type { CourseInstructor } from "../../../types/course.type";
 import SmartImage from "../../ui/SmartImage.astro";
+import { Icon } from "astro-icon/components";
 
 interface Props {
   instructors?: CourseInstructor[];
@@ -16,11 +17,12 @@ const hasInstructors = instructors.some((i) => i.name?.trim());
       {instructors.filter((i) => i.name?.trim()).length > 1 ? "Profesores" : "Profesor"}
     </h2>
 
-    <div class="grid sm:grid-cols-2 gap-6">
+    <!-- Cards apilados a lo ancho: escala bien con 1, 2 o 3 docentes -->
+    <div class="space-y-6">
       {instructors.filter((i) => i.name?.trim()).map((instructor) => (
-        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 bg-white p-4 md:p-6 rounded-3xl border-2 border-primary/20">
+        <div class="flex flex-col sm:flex-row items-start gap-6 bg-white p-5 md:p-6 rounded-3xl border-2 border-primary/20">
           <!-- Avatar -->
-          <div class="w-24 h-24 rounded-3xl overflow-hidden shrink-0 border-4 border-gray-50">
+          <div class="w-20 h-20 md:w-24 md:h-24 rounded-3xl overflow-hidden shrink-0 border-4 border-gray-50">
             <SmartImage
               src={instructor.avatar}
               alt={instructor.name}
@@ -29,16 +31,26 @@ const hasInstructors = instructors.some((i) => i.name?.trim());
           </div>
 
           <!-- Info -->
-          <div class="flex-1">
-            <h3 class="font-bold text-gray-900 text-xl mb-1">
+          <div class="flex-1 min-w-0">
+            <h3 class="font-bold text-gray-900 text-xl mb-0.5">
               {instructor.name}
             </h3>
-            <p class="text-primary font-bold text-sm mb-4">
+            <p class="text-primary font-bold text-sm mb-3">
               {instructor.role}
             </p>
-            <p class="text-gray-600 leading-relaxed">
-              {instructor.bio}
-            </p>
+            <p class="text-gray-600 leading-relaxed text-[15px] [&_strong]:font-semibold [&_strong]:text-gray-900" set:html={instructor.bio} />
+
+            {instructor.linkedin && (
+              <a
+                href={instructor.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-xl border border-primary/30 text-primary font-inter font-bold text-sm hover:bg-primary hover:text-white hover:border-primary transition-global"
+              >
+                <Icon name="mdi:linkedin" class="text-lg" />
+                Ver perfil en LinkedIn
+              </a>
+            )}
           </div>
         </div>
       ))}

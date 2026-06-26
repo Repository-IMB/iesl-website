@@ -1,11 +1,10 @@
 ---
 import { Icon } from "astro-icon/components";
 import { ROUTES } from "../../constants/routes";
-import { 
-  SITE_TITLE, 
-  SITE_DESCRIPTION, 
-  CONTACT_EMAIL, 
-  CONTACT_PHONE 
+import {
+  SITE_TITLE,
+  SITE_DESCRIPTION,
+  CONTACT_EMAIL
 } from "../../constants/consts";
 import SmartImage from "../ui/SmartImage.astro";
 import logo from "../../assets/images/logo-iesl-text-blanco.webp";
@@ -45,7 +44,7 @@ import Section from "../ui/Section.astro";
           <li><a href={ROUTES.HOME} class="hover:text-primary transition-global block">Inicio</a></li>
           <li><a href={ROUTES.COURSES} class="hover:text-primary transition-global block">Cursos</a></li>
           <li><a href={ROUTES.COMMUNITY} class="hover:text-primary transition-global block">Comunidad</a></li>
-          <li><a href={ROUTES.BENEFITS} class="hover:text-primary transition-global block">Beneficios</a></li>
+          {/* Link "Beneficios" oculto temporalmente; se reactiva cuando la sección esté lista. */}
           <li><a href={ROUTES.RESOURCES} class="hover:text-primary transition-global block">Recursos</a></li>
           <li><a href={ROUTES.ABOUT} class="hover:text-primary transition-global block">Nosotros</a></li>
         </ul>
@@ -58,10 +57,6 @@ import Section from "../ui/Section.astro";
           <li class="flex items-center gap-3">
             <Icon name="mdi:email-outline" class="text-primary text-xl" />
             <a href={`mailto:${CONTACT_EMAIL}`} class="hover:text-primary transition-global">{CONTACT_EMAIL}</a>
-          </li>
-          <li class="flex items-center gap-3">
-            <Icon name="mdi:phone-outline" class="text-primary text-xl" />
-            <a href={`tel:${CONTACT_PHONE.replace(/[^0-9+]/g, '')}`} class="hover:text-primary transition-global">{CONTACT_PHONE}</a>
           </li>
         </ul>
         <Button variant="primary" href={ROUTES.COURSES} class="rounded-full! py-2.5! px-8! shadow-none font-bold text-sm bg-primary text-white hover:bg-primary/90 inline-flex">
