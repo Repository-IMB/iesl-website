@@ -51,23 +51,18 @@ const blogPostingJsonLd: Record<string, unknown> = {
   jsonLd={[blogPostingJsonLd]}
 >
   <Section class="py-12 md:py-20 lg:py-24">
-    <!-- Grid Layout 2 Columnas -->
-    <div class="grid lg:grid-cols-[1fr_380px] gap-12 lg:gap-16 items-start max-w-7xl mx-auto">
-      
-      <!-- Columna Principal Izquierda -->
+    <!-- Columna única centrada -->
+    <div class="max-w-3xl mx-auto">
       <main class="w-full">
         <ResourceContent resource={resource}>
           <Content />
         </ResourceContent>
       </main>
 
-      <!-- Columna Derecha Sticky -->
-      <aside class="w-full">
-        <div class="sticky top-32">
-          <ResourceSidebar resource={resource} />
-        </div>
-      </aside>
-
+      <!-- Recursos al final del artículo -->
+      <div class="mt-12">
+        <ResourceSidebar resource={resource} />
+      </div>
     </div>
   </Section>
 
