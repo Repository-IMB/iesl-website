@@ -5,5 +5,6 @@ export const ROUTES = {
   COMMUNITY: "/comunidad",
   BENEFITS: "/beneficios",
   RESOURCES: "/recursos",
+  PRIVACY: "/politica-de-privacidad",
   CURSO_DETALLE: (slug: string) => `/cursos/${slug}`,
 } as const;
