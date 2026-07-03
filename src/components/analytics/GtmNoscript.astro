@@ -1,0 +1,17 @@
+---
+// Fallback de Google Tag Manager para navegadores sin JS. Se renderiza al inicio
+// del <body> (recomendación de Google: inmediatamente después de la etiqueta <body>).
+import { GTM_ID, ANALYTICS_ENABLED } from "../../constants/tracking";
+---
+
+{ANALYTICS_ENABLED && (
+  <noscript>
+    <iframe
+      src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+      height="0"
+      width="0"
+      style="display:none;visibility:hidden"
+      title="Google Tag Manager"
+    ></iframe>
+  </noscript>
+)}

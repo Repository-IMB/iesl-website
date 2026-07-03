@@ -1,0 +1,33 @@
+---
+// Se renderiza dentro del <head>. Emite, en orden:
+//   1. Meta de verificación de Google Search Console (si hay token).
+//   2. Consent Mode v2 por defecto (todo denegado) — DEBE ir antes del loader de GTM.
+//   3. Loader de Google Tag Manager.
+// Todo condicionado a ANALYTICS_ENABLED: sin GTM_ID no se imprime nada.
+import { GTM_ID, GSC_VERIFICATION, ANALYTICS_ENABLED } from "../../constants/tracking";
+---
+
+{GSC_VERIFICATION && (
+  <meta name="google-site-verification" content={GSC_VERIFICATION} />
+)}
+
+{ANALYTICS_ENABLED && (
+  <>
+    {/* Consent Mode v2: denegado por defecto hasta que el banner de cookies actualice. */}
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { window.dataLayer.push(arguments); }
+      window.gtag = window.gtag || gtag;
+      gtag("consent", "default", {
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
+        analytics_storage: "denied",
+        wait_for_update: 500,
+      });
+    </script>
+
+    {/* Google Tag Manager */}
+    <script is:inline set:html={`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GTM_ID}');`} />
+  </>
+)}
