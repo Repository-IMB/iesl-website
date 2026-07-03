@@ -1,0 +1,91 @@
+---
+// Banner de consentimiento de cookies. Actualiza Google Consent Mode v2 según la
+// elección del usuario y persiste la decisión en localStorage.
+// Solo se renderiza si hay tracking activo (ANALYTICS_ENABLED): sin GTM no hay cookies
+// que consentir.
+import Button from "../ui/Button.astro";
+import { ANALYTICS_ENABLED } from "../../constants/tracking";
+---
+
+{ANALYTICS_ENABLED && (
+  <div
+    id="cookie-banner"
+    class="fixed inset-x-0 bottom-0 z-[60] hidden p-4 sm:p-6"
+    role="dialog"
+    aria-live="polite"
+    aria-label="Consentimiento de cookies"
+  >
+    <div class="mx-auto flex max-w-4xl flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-2xl shadow-black/10 sm:flex-row sm:items-center sm:p-6">
+      <p class="flex-1 text-sm leading-relaxed text-gray-600">
+        Usamos cookies para analizar el tráfico y mejorar tu experiencia. Podés
+        aceptarlas o rechazarlas. Más info en nuestra
+        <a href="/politica-de-privacidad" class="font-semibold text-primary underline underline-offset-2">
+          Política de Privacidad</a>.
+      </p>
+      <div class="flex shrink-0 gap-3">
+        <Button id="cookie-reject" type="button" variant="secondary" class="!px-5 !py-2.5 text-sm">
+          Rechazar
+        </Button>
+        <Button id="cookie-accept" type="button" variant="primary" class="!px-5 !py-2.5 text-sm">
+          Aceptar
+        </Button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    type Consent = "granted" | "denied";
+
+    const STORAGE_KEY = "iesl-consent";
+    const w = window as unknown as {
+      dataLayer: unknown[];
+      gtag: (...args: unknown[]) => void;
+    };
+
+    // Helper gtag seguro e idempotente (GTM define el mismo dataLayer/gtag).
+    w.dataLayer = w.dataLayer || [];
+    w.gtag = w.gtag || function gtag() { w.dataLayer.push(arguments); };
+
+    const GRANTED = {
+      ad_storage: "granted",
+      ad_user_data: "granted",
+      ad_personalization: "granted",
+      analytics_storage: "granted",
+    };
+    const DENIED = {
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+      analytics_storage: "denied",
+    };
+
+    const banner = document.getElementById("cookie-banner");
+
+    function setConsent(value: Consent) {
+      w.gtag("consent", "update", value === "granted" ? GRANTED : DENIED);
+    }
+
+    function decide(value: Consent) {
+      try { localStorage.setItem(STORAGE_KEY, value); } catch (_) {}
+      setConsent(value);
+      banner?.classList.add("hidden");
+    }
+
+    let saved: string | null = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (_) {}
+
+    if (saved === "granted" || saved === "denied") {
+      // Reaplica la decisión previa en cada carga (el default de GTM es "denied").
+      setConsent(saved);
+    } else {
+      banner?.classList.remove("hidden");
+    }
+
+    document
+      .getElementById("cookie-accept")
+      ?.addEventListener("click", () => decide("granted"));
+    document
+      .getElementById("cookie-reject")
+      ?.addEventListener("click", () => decide("denied"));
+  </script>
+)}
