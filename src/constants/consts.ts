@@ -4,9 +4,9 @@ export const CONTACT_EMAIL = 'hola@iesl-institute.com';
 export const CONTACT_PHONE = '+54 11 1234-5678';
 
 // Número de WhatsApp para inscripciones: solo dígitos, con código de país y
-// sin "+" ni espacios (ej. Perú: '51987654321'). COMPLETAR antes de publicar.
-export const WHATSAPP_NUMBER = '';
+// sin "+" ni espacios (ej. Perú: '51987654321').
+export const WHATSAPP_NUMBER = '51986726708';
 
-/** Link a WhatsApp con mensaje precargado (formato wa.me). */
+/** Link a WhatsApp con mensaje precargado (formato api.whatsapp.com/send). */
 export const getWhatsAppLink = (message: string) =>
-	`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+	`https://api.whatsapp.com/send/?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(message)}&type=phone_number&app_absent=0`;
