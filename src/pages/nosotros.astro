@@ -3,7 +3,9 @@ import Layout from "../layouts/Layout.astro";
 import HeroSection from "../components/nosotros/HeroSection.astro";
 import ValuesSection from "../components/nosotros/ValuesSection.astro";
 import StorySection from "../components/nosotros/StorySection.astro";
-import TeamSection from "../components/nosotros/TeamSection.astro";
+// Sección "Nuestro equipo" oculta temporalmente (datos de ejemplo); se reactiva
+// cuando estén los perfiles reales del equipo.
+// import TeamSection from "../components/nosotros/TeamSection.astro";
 import ContactSection from "../components/nosotros/ContactSection.astro";
 ---
 
@@ -14,6 +16,6 @@ import ContactSection from "../components/nosotros/ContactSection.astro";
   <HeroSection />
   <ValuesSection />
   <StorySection />
-  <TeamSection />
+  {/* <TeamSection /> oculto temporalmente */}
   <ContactSection />
 </Layout>
