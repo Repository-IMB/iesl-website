@@ -1,0 +1,26 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"input"> {
+  label?: string;
+  id: string;
+  wrapperClass?: string;
+}
+
+const { label, id, class: className, wrapperClass = "", ...rest } = Astro.props;
+---
+<div class={`w-full ${wrapperClass}`.trim()}>
+  {label && (
+    <label for={id} class="block font-bold text-sm md:text-base text-gray-700 mb-1.5 ml-1 tracking-wider">
+      {label}
+    </label>
+  )}
+  <input
+    id={id}
+    class:list={[
+      "w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50 font-inter text-sm md:text-base transition-colors",
+      className
+    ]}
+    {...rest}
+  />
+</div>

@@ -1,5 +1,7 @@
 ---
 import Button from "../ui/Button.astro";
+import Input from "../ui/Input.astro";
+import PhoneInput from "../ui/PhoneInput.astro";
 import type { IconName } from "../../types/icons";
 
 interface Props {
@@ -15,32 +17,7 @@ const {
 } = Astro.props;
 ---
 <script>
-  const phoneInput = document.querySelector("#phone") as HTMLInputElement | null;
-  let iti: { getNumber: () => string } | null = null;
-
-  // intl-tel-input (~40 KB de JS + CSS y un lookup de geolocalización) se carga
-  // recién cuando el usuario interactúa con el formulario, no en cada página.
-  async function setupPhoneInput() {
-    if (!phoneInput || iti) return;
-    const [{ default: intlTelInput }] = await Promise.all([
-      import("intl-tel-input"),
-      // @ts-expect-error — la entrada CSS del paquete no publica tipos
-      import("intl-tel-input/styles"),
-    ]);
-    iti = intlTelInput(phoneInput, {
-      initialCountry: "auto",
-      geoIpLookup(callback) {
-        fetch("https://ipapi.co/json")
-          .then((res) => res.json())
-          .then((data) => callback(data.country_code))
-          .catch(() => callback("ar"));
-      },
-      loadUtils: () => import("intl-tel-input/utils"),
-    });
-  }
-
   const form = document.querySelector<HTMLFormElement>("#contact-form");
-  form?.addEventListener("focusin", setupPhoneInput, { once: true });
   const submitBtn = document.querySelector<HTMLButtonElement>("#contact-submit");
   const statusMsg = document.querySelector<HTMLElement>("#form-status");
 
@@ -58,6 +35,8 @@ const {
     const nombre   = (document.querySelector<HTMLInputElement>("#nombre")?.value ?? "").trim();
     const apellido = (document.querySelector<HTMLInputElement>("#apellido")?.value ?? "").trim();
     const email    = (document.querySelector<HTMLInputElement>("#email")?.value ?? "").trim();
+    const phoneInput = document.querySelector<HTMLInputElement>("#phone");
+    const iti = phoneInput ? (phoneInput as any)._iti : null;
     const telefono = iti ? iti.getNumber() : (phoneInput?.value ?? "").trim();
 
     if (!nombre || !apellido || !email || !telefono) {
@@ -92,56 +71,42 @@ const {
 </script>
 
 <form id="contact-form" class="space-y-4" novalidate>
-  <div>
-    <label for="nombre" class="block font-bold text-sm md:text-base text-gray-700 mb-1.5 ml-1 tracking-wider">Nombre*</label>
-    <input
-      id="nombre"
-      name="nombre"
-      type="text"
-      placeholder="Juan"
-      autocomplete="given-name"
-      required
-      class="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50"
-    />
-  </div>
-  <div>
-    <label for="apellido" class="block font-bold text-sm md:text-base text-gray-700 mb-1.5 ml-1 tracking-wider">Apellido*</label>
-    <input
-      id="apellido"
-      name="apellido"
-      type="text"
-      placeholder="Perez"
-      autocomplete="family-name"
-      required
-      class="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50"
-    />
-  </div>
+  <Input
+    id="nombre"
+    name="nombre"
+    type="text"
+    label="Nombre*"
+    placeholder="Juan"
+    autocomplete="given-name"
+    required
+  />
+  <Input
+    id="apellido"
+    name="apellido"
+    type="text"
+    label="Apellido*"
+    placeholder="Perez"
+    autocomplete="family-name"
+    required
+  />
 
   <div class="flex flex-col gap-4">
-    <div class="w-full">
-      <label for="phone" class="block font-bold text-sm md:text-base text-gray-700 mb-1.5 ml-1 tracking-wider">Teléfono*</label>
-      <input
-        id="phone"
-        name="telefono"
-        type="tel"
-        autocomplete="tel"
-        required
-        class="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50"
-      />
-    </div>
+    <PhoneInput
+      id="phone"
+      name="telefono"
+      label="Teléfono*"
+      required
+    />
 
-    <div>
-      <label for="email" class="block font-bold text-sm md:text-base text-gray-700 mb-1.5 ml-1 tracking-wider">Email*</label>
-      <input
-        id="email"
-        name="email"
-        type="email"
-        placeholder="tucorreo@ejemplo.com"
-        autocomplete="email"
-        required
-        class="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50"
-      />
-    </div>
+    <Input
+      id="email"
+      name="email"
+      type="email"
+      label="Email*"
+      placeholder="tucorreo@ejemplo.com"
+      autocomplete="email"
+      required
+    />
   </div>
 
   <!-- Status message -->
@@ -162,13 +127,6 @@ const {
 </form>
 
 <style is:global>
-  .iti {
-    --iti-path-flags-1x: url("https://cdn.jsdelivr.net/npm/intl-tel-input@26.9.1/build/img/flags.webp");
-    --iti-path-flags-2x: url("https://cdn.jsdelivr.net/npm/intl-tel-input@26.9.1/build/img/flags@2x.webp");
-    --iti-path-globe-1x: url("https://cdn.jsdelivr.net/npm/intl-tel-input@26.9.1/build/img/globe.webp");
-    --iti-path-globe-2x: url("https://cdn.jsdelivr.net/npm/intl-tel-input@26.9.1/build/img/globe@2x.webp");
-    width: 100% !important;
-  }
 
   /* Form status feedback */
   .form-status {

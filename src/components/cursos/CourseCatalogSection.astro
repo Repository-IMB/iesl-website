@@ -3,6 +3,7 @@ import Section from "../ui/Section.astro";
 import CourseCard from "../ui/CourseCard.astro";
 import { getCourses, getCategories } from "../../data/courses.data";
 import Button from "../ui/Button.astro";
+import Input from "../ui/Input.astro";
 
 const courses = await getCourses();
 const categories = await getCategories();
@@ -16,11 +17,11 @@ const INITIAL_VISIBLE = 9;
 
     <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
       <!-- Barra de búsqueda -->
-      <input
+      <Input
         id="course-search"
         type="search"
         placeholder="Buscar curso..."
-        class="px-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-gray-50 font-inter text-sm w-full sm:w-64"
+        wrapperClass="sm:w-64"
       />
 
       <!-- Dropdown de categorías -->
