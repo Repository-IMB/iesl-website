@@ -62,6 +62,8 @@ export type IconName =
   | "hugeicons:yoga-02"
   | "hugeicons:tie"
   | "hugeicons:megaphone-02"
+  | "tabler:arrow-right"
+  | "tabler:check"
   | "lucide:circle-check-big";
   
 export type Color = "primary" | "purple" | "orange" | "red" ;

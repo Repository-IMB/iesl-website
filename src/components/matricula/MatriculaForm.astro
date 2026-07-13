@@ -1,0 +1,439 @@
+---
+import Input from "../ui/Input.astro";
+import PhoneInput from "../ui/PhoneInput.astro";
+import Select from "../ui/Select.astro";
+import Radio from "../ui/Radio.astro";
+import Checkbox from "../ui/Checkbox.astro";
+import Button from "../ui/Button.astro";
+import { Icon } from "astro-icon/components";
+
+const techOptions = [
+  { label: "Básico", value: "basico" },
+  { label: "Intermedio", value: "intermedio" },
+  { label: "Avanzado", value: "avanzado" },
+];
+
+const countryOptions = [
+  { label: "Argentina", value: "Argentina" },
+  { label: "Bolivia", value: "Bolivia" },
+  { label: "Chile", value: "Chile" },
+  { label: "Colombia", value: "Colombia" },
+  { label: "Costa Rica", value: "Costa Rica" },
+  { label: "Ecuador", value: "Ecuador" },
+  { label: "El Salvador", value: "El Salvador" },
+  { label: "España", value: "España" },
+  { label: "Guatemala", value: "Guatemala" },
+  { label: "Honduras", value: "Honduras" },
+  { label: "México", value: "México" },
+  { label: "Nicaragua", value: "Nicaragua" },
+  { label: "Panamá", value: "Panamá" },
+  { label: "Paraguay", value: "Paraguay" },
+  { label: "Perú", value: "Perú" },
+  { label: "República Dominicana", value: "República Dominicana" },
+  { label: "Uruguay", value: "Uruguay" },
+  { label: "Venezuela", value: "Venezuela" },
+  { label: "Otro", value: "Otro" },
+];
+---
+<form id="matricula-form" class="relative" novalidate>
+  <!-- Barra de progreso -->
+  <div id="progress-container" class="mb-10">
+    <div class="flex justify-between items-center mb-3">
+      <span class="text-sm font-bold text-gray-500 font-inter" id="step-indicator">Paso 1 de 4</span>
+      <span class="text-sm font-bold text-primary font-inter" id="step-percentage">25%</span>
+    </div>
+    <div class="w-full bg-gray-100 rounded-full h-2">
+      <div class="bg-primary h-2 rounded-full transition-all duration-300" id="progress-bar" style="width: 25%"></div>
+    </div>
+  </div>
+
+  <!-- Paso 1 -->
+  <div class="step-container" data-step="1">
+    <div class="space-y-6">
+      <Input
+        id="curso"
+        name="curso"
+        type="text"
+        label="Escribe el curso al que te matriculas*"
+        placeholder="Ej: Power BI para Mantenimiento"
+        required
+      />
+      <div class="flex justify-end pt-4">
+        <Button type="button" class="next-btn" icon="tabler:arrow-right">
+          Siguiente
+        </Button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paso 2 -->
+  <div class="step-container hidden" data-step="2">
+    <div class="space-y-6">
+      <Input
+        id="nombres"
+        name="nombres"
+        type="text"
+        label="Nombres y Apellidos, completos (Los usaremos para tu certificado y acceso al campus)*"
+        placeholder="Juan Pérez"
+        required
+      />
+      
+      <Input
+        id="documento"
+        name="documento"
+        type="text"
+        inputmode="numeric"
+        pattern="[0-9]+"
+        title="Por favor, ingresa solamente números"
+        label="Número de Documento / Cédula / Carnet de Identidad*"
+        placeholder="12345678"
+        maxlength={25}
+        required
+      />
+      
+      <Input
+        id="email"
+        name="email"
+        type="email"
+        label="Correo electrónico (Sugerimos Gmail, Hotmail o Outlook para recibir las invitaciones)*"
+        placeholder="juan@ejemplo.com"
+        required
+      />
+      
+      <PhoneInput
+        id="whatsapp"
+        name="whatsapp"
+        label="Número de WhatsApp*"
+        required
+      />
+      
+      <Select
+        id="pais"
+        name="pais"
+        label="País*"
+        options={countryOptions}
+        required
+      />
+      
+      <div class="flex justify-between pt-4">
+        <Button type="button" variant="secondary" class="prev-btn">
+          Anterior
+        </Button>
+        <Button type="button" class="next-btn" icon="tabler:arrow-right">
+          Siguiente
+        </Button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paso 3 -->
+  <div class="step-container hidden" data-step="3">
+    <div class="space-y-6">
+      <Input
+        id="area"
+        name="area"
+        type="text"
+        label="Área de Formación o Profesión (Ej: Administración, Ingeniería, Salud)"
+        placeholder="Ej: Ingeniería Industrial"
+      />
+      
+      <Input
+        id="empresa"
+        name="empresa"
+        type="text"
+        label="Empresa donde trabajas actualmente (o última)*"
+        placeholder="Nombre de la empresa"
+        required
+      />
+      
+      <Input
+        id="cargo"
+        name="cargo"
+        type="text"
+        label="Cargo u ocupación*"
+        placeholder="Ej: Analista de datos"
+        required
+      />
+      
+      <Select
+        id="tecnologia"
+        name="tecnologia"
+        label="Nivel de familiaridad con el uso de tecnología (WhatsApp, Zoom, correo electrónico, plataforma Moodle)*"
+        options={techOptions}
+        required
+      />
+      
+      <div class="flex justify-between pt-4">
+        <Button type="button" variant="secondary" class="prev-btn">
+          Anterior
+        </Button>
+        <Button type="button" class="next-btn" icon="tabler:arrow-right">
+          Siguiente
+        </Button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paso 4 -->
+  <div class="step-container hidden" data-step="4">
+    <div class="space-y-6">
+      <div>
+        <label class="block font-bold text-sm md:text-base text-gray-700 mb-3 ml-1 tracking-wider">
+          Tipo de comprobante de pago*
+        </label>
+        <div class="flex gap-6 flex-wrap">
+          <Radio id="comp-boleta" name="comprobante" value="boleta" label="Boleta" required />
+          <Radio id="comp-factura" name="comprobante" value="factura" label="Factura" required />
+          <Radio id="comp-recibo" name="comprobante" value="recibo" label="Recibo" required />
+        </div>
+      </div>
+      
+      <Input
+        id="razon-social"
+        name="razon_social"
+        type="text"
+        label="Razón social o Nombre completo para registrar la facturación*"
+        placeholder="Razón social"
+        maxlength={25}
+        required
+      />
+      
+      <Input
+        id="nit"
+        name="nit"
+        type="text"
+        label="Número de identificación tributaria para registrar la facturación (RUC/RUT/RFC/NIT/otros)*"
+        placeholder="1234567890"
+        maxlength={25}
+        required
+      />
+      
+      <!-- Beneficios adicionales -->
+      <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-100 my-8">
+        <h3 class="font-poppins font-bold text-xl text-gray-900 mb-2">Beneficios adicionales</h3>
+        <p class="text-sm font-inter text-gray-600 mb-6 leading-relaxed">
+          Potencia tu perfil con estos Bonos Extras (Sin costo adicional). Selecciona el nivel en el que te gustaría participar durante tu capacitación. Estas clases son complementarias y en vivo. Puedes cambiar de nivel más adelante.
+        </p>
+        
+        <div class="space-y-6">
+          <div>
+            <label class="block font-bold text-sm md:text-base text-gray-700 mb-3 ml-1 tracking-wider">
+              Clases de Inglés*
+            </label>
+            <div class="flex gap-4 flex-wrap">
+              <Radio id="ingles-ninguno" name="ingles" value="ninguno" label="Ninguno" required />
+              <Radio id="ingles-basico" name="ingles" value="basico" label="Básico" required />
+              <Radio id="ingles-intermedio" name="ingles" value="intermedio" label="Intermedio" required />
+              <Radio id="ingles-avanzado" name="ingles" value="avanzado" label="Avanzado" required />
+            </div>
+          </div>
+          
+          <div>
+            <label class="block font-bold text-sm md:text-base text-gray-700 mb-3 ml-1 tracking-wider">
+              Clases de Excel*
+            </label>
+            <div class="flex gap-4 flex-wrap">
+              <Radio id="excel-ninguno" name="excel" value="ninguno" label="Ninguno" required />
+              <Radio id="excel-basico" name="excel" value="basico" label="Básico" required />
+              <Radio id="excel-intermedio" name="excel" value="intermedio" label="Intermedio" required />
+              <Radio id="excel-avanzado" name="excel" value="avanzado" label="Avanzado" required />
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="py-4 border-t border-gray-100">
+        <Checkbox
+          id="terminos"
+          name="terminos"
+          required
+        >
+          He leído y acepto la <a href="/politica-de-privacidad" class="text-primary hover:underline font-semibold" target="_blank">Política de Privacidad</a> y los términos y condiciones de uso.
+        </Checkbox>
+      </div>
+      
+      <p id="form-error-msg" class="text-secondary text-sm font-bold hidden font-inter bg-secondary/10 p-4 rounded-xl">
+        Por favor, completa todos los campos requeridos correctamente antes de enviar.
+      </p>
+
+      <div class="flex justify-between pt-4">
+        <Button type="button" variant="secondary" class="prev-btn">
+          Anterior
+        </Button>
+        <Button type="submit" id="submit-btn" icon="tabler:check">
+          Matricularme ahora
+        </Button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje de éxito -->
+  <div id="success-message" class="hidden text-center py-12 animate-fade-in">
+    <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+        <path d="M5 12l5 5l10 -10"></path>
+      </svg>
+    </div>
+    <h3 class="font-poppins font-bold text-2xl text-gray-900 mb-3">¡Matrícula enviada con éxito!</h3>
+    <p class="font-inter text-gray-600 max-w-md mx-auto">
+      Tus datos han sido registrados correctamente. Nos pondremos en contacto contigo a la brevedad.
+    </p>
+  </div>
+</form>
+
+<script>
+  function setupMultistep() {
+    const form = document.getElementById("matricula-form") as HTMLFormElement;
+    if (!form) return;
+
+    const steps = Array.from(document.querySelectorAll(".step-container")) as HTMLElement[];
+    const nextBtns = document.querySelectorAll(".next-btn");
+    const prevBtns = document.querySelectorAll(".prev-btn");
+    const stepIndicator = document.getElementById("step-indicator");
+    const progressBar = document.getElementById("progress-bar");
+    const errorMsg = document.getElementById("form-error-msg");
+    
+    let currentStepIndex = 0;
+
+    // Validación en tiempo real (evitar que escriban letras en campos numéricos)
+    const docInput = document.getElementById("documento") as HTMLInputElement;
+    if (docInput) {
+      docInput.addEventListener("input", (e) => {
+        const target = e.target as HTMLInputElement;
+        target.value = target.value.replace(/[^0-9]/g, ""); // Remueve cualquier cosa que no sea número
+      });
+    }
+
+    function updateUI(scrollToForm = true) {
+      // Ocultar todos, mostrar el actual
+      steps.forEach((step, index) => {
+        if (index === currentStepIndex) {
+          step.classList.remove("hidden");
+        } else {
+          step.classList.add("hidden");
+        }
+      });
+
+      // Actualizar progreso
+      const stepNumber = currentStepIndex + 1;
+      const totalSteps = steps.length;
+      const percentage = (stepNumber / totalSteps) * 100;
+      
+      if (stepIndicator) stepIndicator.textContent = `Paso ${stepNumber} de ${totalSteps}`;
+      if (progressBar) progressBar.style.width = `${percentage}%`;
+      
+      const stepPercentage = document.getElementById("step-percentage");
+      if (stepPercentage) stepPercentage.textContent = `${Math.round(percentage)}%`;
+      
+      // Ocultar mensaje de error global
+      if (errorMsg) errorMsg.classList.add("hidden");
+      
+      // Scroll to top of form gently if not in viewport
+      if (scrollToForm) {
+        const y = form.getBoundingClientRect().top + window.scrollY - 100;
+        window.scrollTo({top: y, behavior: 'smooth'});
+      }
+    }
+
+    function validateCurrentStep(): boolean {
+      const currentStepEl = steps[currentStepIndex];
+      // Buscamos inputs, selects y textareas
+      const inputs = Array.from(currentStepEl.querySelectorAll("input, select, textarea")) as (HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement)[];
+      
+      let isValid = true;
+      
+      for (const input of inputs) {
+        if (!input.checkValidity()) {
+          input.reportValidity();
+          isValid = false;
+          break; // Detener en el primer error para mostrar el tooltip nativo
+        }
+      }
+      
+      return isValid;
+    }
+
+    nextBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (validateCurrentStep()) {
+          if (currentStepIndex < steps.length - 1) {
+            currentStepIndex++;
+            updateUI();
+          }
+        }
+      });
+    });
+
+    prevBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (currentStepIndex > 0) {
+          currentStepIndex--;
+          updateUI();
+        }
+      });
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      
+      if (!validateCurrentStep()) {
+        if (errorMsg && currentStepIndex === steps.length - 1) {
+          errorMsg.classList.remove("hidden");
+        }
+        return;
+      }
+      
+      // Si no estamos en el último paso, Enter funciona como botón "Siguiente"
+      if (currentStepIndex < steps.length - 1) {
+        currentStepIndex++;
+        updateUI();
+        return;
+      }
+      
+      // Submit form real en el último paso
+      const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
+      const originalText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Procesando...";
+      
+      // Lógica de envío de datos real hacia Google Sheets
+      const scriptURL = import.meta.env.PUBLIC_GOOGLE_SCRIPT_URL;
+      const formData = new FormData(form);
+
+      fetch(scriptURL, { method: 'POST', body: formData })
+        .then(response => {
+          // Ocultar pasos y barra de progreso
+          steps.forEach(step => step.classList.add("hidden"));
+          const progressContainer = document.getElementById("progress-container");
+          if (progressContainer) progressContainer.classList.add("hidden");
+          
+          // Mostrar mensaje de éxito
+          const successMessage = document.getElementById("success-message");
+          if (successMessage) successMessage.classList.remove("hidden");
+          
+          // Scroll hacia el mensaje
+          const y = form.getBoundingClientRect().top + window.scrollY - 100;
+          window.scrollTo({top: y, behavior: 'smooth'});
+          
+          form.reset();
+        })
+        .catch(error => {
+          console.error('Error!', error.message);
+          alert("Hubo un error al enviar el formulario. Por favor, intenta de nuevo.");
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        });
+    });
+
+    // Estado inicial (sin auto-scroll)
+    updateUI(false);
+  }
+
+  // Soporte para view transitions de Astro si aplica
+  document.addEventListener("astro:page-load", setupMultistep);
+  if (document.readyState === 'loading') {
+    document.addEventListener("DOMContentLoaded", setupMultistep);
+  } else {
+    setupMultistep();
+  }
+</script>

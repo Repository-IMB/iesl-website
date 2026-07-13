@@ -1,0 +1,24 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"input"> {
+  label: string;
+  id: string;
+}
+
+const { label, id, class: className, ...rest } = Astro.props;
+---
+<div class="flex items-center">
+  <input
+    id={id}
+    type="radio"
+    class:list={[
+      "w-4 h-4 accent-primary bg-gray-50 border-gray-200 focus:ring-primary focus:ring-2 cursor-pointer",
+      className
+    ]}
+    {...rest}
+  />
+  <label for={id} class="ml-2 text-sm md:text-base font-inter text-gray-700 cursor-pointer">
+    {label}
+  </label>
+</div>
