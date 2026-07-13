@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import Section from "../components/ui/Section.astro";
 import MatriculaForm from "../components/matricula/MatriculaForm.astro";
 import { Icon } from "astro-icon/components";
+import { SUPPORT_PHONE, SUPPORT_PHONE_DISPLAY, ACADEMIC_SUPPORT_EMAIL, CUSTOMER_MANAGEMENT_EMAIL } from "../constants/consts";
 ---
 
 <Layout 
@@ -54,13 +55,13 @@ import { Icon } from "astro-icon/components";
                 <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                   <Icon name="tabler:mail" class="text-primary text-xl" />
                 </div>
-                <a href="mailto:academicsupport@imbinstitute.com" class="hover:text-primary transition-colors font-medium break-all">academicsupport@imbinstitute.com</a>
+                <a href={`mailto:${ACADEMIC_SUPPORT_EMAIL}`} class="hover:text-primary transition-colors font-medium break-all">{ACADEMIC_SUPPORT_EMAIL}</a>
               </li>
               <li class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                   <Icon name="tabler:brand-whatsapp" class="text-primary text-xl" />
                 </div>
-                <a href="https://wa.me/51932329714" class="hover:text-primary transition-colors font-medium">+51 932 329 714</a>
+                <a href={`https://wa.me/${SUPPORT_PHONE}`} target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors font-medium">{SUPPORT_PHONE_DISPLAY}</a>
               </li>
               <li class="flex items-start gap-3">
                 <div class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
@@ -84,13 +85,13 @@ import { Icon } from "astro-icon/components";
                 <div class="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center shrink-0">
                   <Icon name="tabler:mail" class="text-secondary text-xl" />
                 </div>
-                <a href="mailto:customermanagement@imbinstitute.com" class="hover:text-secondary transition-colors font-medium break-all">customermanagement@imbinstitute.com</a>
+                <a href={`mailto:${CUSTOMER_MANAGEMENT_EMAIL}`} class="hover:text-secondary transition-colors font-medium break-all">{CUSTOMER_MANAGEMENT_EMAIL}</a>
               </li>
               <li class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center shrink-0">
                   <Icon name="tabler:brand-whatsapp" class="text-secondary text-xl" />
                 </div>
-                <a href="https://wa.me/51964391595" class="hover:text-secondary transition-colors font-medium">+51 964 391 595</a>
+                <a href={`https://wa.me/${SUPPORT_PHONE}`} target="_blank" rel="noopener noreferrer" class="hover:text-secondary transition-colors font-medium">{SUPPORT_PHONE_DISPLAY}</a>
               </li>
               <li class="flex items-start gap-3">
                 <div class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
