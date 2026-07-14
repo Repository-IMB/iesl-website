@@ -7,8 +7,9 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node fix-cloudflare-pages.mjs",
-    "preview": "astro preview",
+    "build": "node -e \"const fs=require('fs'); fs.mkdirSync('dist/_worker.js',{recursive:true}); fs.writeFileSync('dist/_worker.js/index.js','')\" && astro build",
+    "preview": "wrangler dev",
+    "deploy": "wrangler deploy",
     "astro": "astro",
     "generate-types": "wrangler types"
   },

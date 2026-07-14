@@ -1,8 +1,14 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "iesl-website",
+  "main": "./dist/_worker.js/index.js",
   "compatibility_date": "2026-07-14",
   "compatibility_flags": ["global_fetch_strictly_public", "nodejs_compat"],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  },
   "observability": {
     "enabled": true
   },

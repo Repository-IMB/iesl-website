@@ -1,0 +1,19 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "iesl-website",
+	"compatibility_date": "2026-07-13",
+	"compatibility_flags": ["global_fetch_strictly_public", "nodejs_compat"],
+	"observability": {
+		"enabled": true
+	},
+	"r2_buckets": [
+		{
+			"binding": "MI_BUCKET_R2",
+			"bucket_name": "ieslinstitute",
+			"preview_bucket_name": "ieslinstitute-preview"
+		}
+	],
+	"vars": {
+		"SECRET_ACCESS_TOKEN": ""
+	}
+}
