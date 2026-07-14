@@ -4,7 +4,7 @@ import { ROUTES } from "../../constants/routes";
 import {
   SITE_TITLE,
   SITE_DESCRIPTION,
-  CONTACT_EMAIL
+  CONTACT_EMAIL,
 } from "../../constants/consts";
 import SmartImage from "../ui/SmartImage.astro";
 import logo from "../../assets/images/logo-iesl-text-blanco.webp";
@@ -13,69 +13,129 @@ import Button from "../ui/Button.astro";
 import Section from "../ui/Section.astro";
 ---
 
-<Section as="footer" class="bg-footer-bg text-white border-t border-footer-border">
+<Section
+  as="footer"
+  class="bg-footer-bg text-white border-t border-footer-border"
+>
   <NewsletterForm />
-    
-    <div class="h-px bg-footer-border w-full my-12"></div>
 
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-10 font-inter text-sm mb-12">
-      <!-- Columna 1: Info (md:col-span-5) -->
-      <div class="md:col-span-5 flex flex-col items-start gap-4">
-        <a href={ROUTES.HOME} class="block mb-2">
-          <SmartImage src={logo} alt={SITE_TITLE} class="w-32 h-auto" />
+  <div class="h-px bg-footer-border w-full my-12"></div>
+
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-10 font-inter text-sm mb-12">
+    <!-- Columna 1: Info (md:col-span-5) -->
+    <div class="md:col-span-5 flex flex-col items-start gap-4">
+      <a href={ROUTES.HOME} class="block mb-2">
+        <SmartImage src={logo} alt={SITE_TITLE} class="w-32 h-auto" />
+      </a>
+      <p class="text-gray-400 leading-relaxed font-inter pr-4">
+        {SITE_DESCRIPTION}
+      </p>
+      <div class="flex items-center gap-3 mt-4">
+        <a
+          href="#"
+          class="w-10 h-10 rounded-xl bg-footer-border hover:bg-primary transition-global flex items-center justify-center text-gray-400 hover:text-white group"
+          aria-label="Instagram"
+        >
+          <Icon
+            name="mdi:instagram"
+            class="text-xl group-hover:scale-110 transition-transform"
+          />
         </a>
-        <p class="text-gray-400 leading-relaxed font-inter pr-4">
-          {SITE_DESCRIPTION}
-        </p>
-        <div class="flex items-center gap-3 mt-4">
-          <a href="#" class="w-10 h-10 rounded-xl bg-footer-border hover:bg-primary transition-global flex items-center justify-center text-gray-400 hover:text-white group" aria-label="Instagram">
-            <Icon name="mdi:instagram" class="text-xl group-hover:scale-110 transition-transform" />
-          </a>
-          <a href="#" class="w-10 h-10 rounded-xl bg-footer-border hover:bg-primary transition-global flex items-center justify-center text-gray-400 hover:text-white group" aria-label="LinkedIn">
-            <Icon name="mdi:linkedin" class="text-xl group-hover:scale-110 transition-transform" />
-          </a>
-        </div>
-      </div>
-
-      <!-- Columna 2: Navegación (md:col-span-4) -->
-      <div class="md:col-span-4 lg:pl-8">
-        <h4 class="font-poppins font-bold text-white mb-6 text-base tracking-tight">Navegación</h4>
-        <ul class="flex flex-col gap-3 text-gray-300 font-medium">
-          <li><a href={ROUTES.HOME} class="hover:text-primary transition-global block">Inicio</a></li>
-          <li><a href={ROUTES.COURSES} class="hover:text-primary transition-global block">Cursos</a></li>
-          <li><a href={ROUTES.COMMUNITY} class="hover:text-primary transition-global block">Comunidad</a></li>
-          {/* Link "Beneficios" oculto temporalmente; se reactiva cuando la sección esté lista. */}
-          <li><a href={ROUTES.RESOURCES} class="hover:text-primary transition-global block">Recursos</a></li>
-          <li><a href={ROUTES.ABOUT} class="hover:text-primary transition-global block">Nosotros</a></li>
-        </ul>
-      </div>
-
-      <!-- Columna 3: Contacto (md:col-span-3) -->
-      <div class="md:col-span-3">
-        <h4 class="font-poppins font-bold text-white mb-6 text-base tracking-tight">Contacto</h4>
-        <ul class="flex flex-col gap-4 text-gray-300 font-medium mb-8">
-          <li class="flex items-center gap-3">
-            <Icon name="mdi:email-outline" class="text-primary text-xl" />
-            <a href={`mailto:${CONTACT_EMAIL}`} class="hover:text-primary transition-global">{CONTACT_EMAIL}</a>
-          </li>
-        </ul>
-        <Button variant="primary" href={ROUTES.COURSES} class="rounded-full! py-2.5! px-8! shadow-none font-bold text-sm bg-primary text-white hover:bg-primary/90 inline-flex">
-          Inscribirme
-        </Button>
+        <a
+          href="#"
+          class="w-10 h-10 rounded-xl bg-footer-border hover:bg-primary transition-global flex items-center justify-center text-gray-400 hover:text-white group"
+          aria-label="LinkedIn"
+        >
+          <Icon
+            name="mdi:linkedin"
+            class="text-xl group-hover:scale-110 transition-transform"
+          />
+        </a>
       </div>
     </div>
 
-    <!-- Divider inferior -->
-    <div class="h-px bg-footer-border w-full mb-6 relative"></div>
-
-    <!-- Bottom text -->
-    <div class="flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 font-inter gap-4">
-      <p class="flex items-center gap-1">
-        Hecho con <Icon name="mdi:heart" class="text-gray-400 text-sm" /> para estudiantes como vos.
-      </p>
-      <p class="text-center md:text-right">
-        © 2026 {SITE_TITLE}. Todos los derechos reservados. <a href={ROUTES.PRIVACY} class="underline hover:text-white transition-global ml-1">Políticas de Privacidad</a>
-      </p>
+    <!-- Columna 2: Navegación (md:col-span-4) -->
+    <div class="md:col-span-4 lg:pl-8">
+      <h4
+        class="font-poppins font-bold text-white mb-6 text-base tracking-tight"
+      >
+        Navegación
+      </h4>
+      <ul class="flex flex-col gap-3 text-gray-300 font-medium">
+        <li>
+          <a
+            href={ROUTES.HOME}
+            class="hover:text-primary transition-global block">Inicio</a>
+        </li>
+        <li>
+          <a
+            href={ROUTES.COURSES}
+            class="hover:text-primary transition-global block">Cursos</a>
+        </li>
+        <li>
+          <a
+            href={ROUTES.COMMUNITY}
+            class="hover:text-primary transition-global block">Comunidad</a>
+        </li>
+        {
+          /* Link "Beneficios" oculto temporalmente; se reactiva cuando la sección esté lista. */
+        }
+        <li>
+          <a
+            href={ROUTES.RESOURCES}
+            class="hover:text-primary transition-global block">Recursos</a>
+        </li>
+        <li>
+          <a
+            href={ROUTES.ABOUT}
+            class="hover:text-primary transition-global block">Nosotros</a>
+        </li>
+      </ul>
     </div>
+
+    <!-- Columna 3: Contacto (md:col-span-3) -->
+    <div class="md:col-span-3">
+      <h4
+        class="font-poppins font-bold text-white mb-6 text-base tracking-tight"
+      >
+        Contacto
+      </h4>
+      <ul class="flex flex-col gap-4 text-gray-300 font-medium mb-8">
+        <li class="flex items-center gap-3">
+          <Icon name="mdi:email-outline" class="text-primary text-xl" />
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            class="hover:text-primary transition-global">{CONTACT_EMAIL}</a
+          >
+        </li>
+      </ul>
+      <Button
+        variant="primary"
+        href={ROUTES.COURSES}
+        class="rounded-full! py-2.5! px-8! shadow-none font-bold text-sm bg-primary text-white hover:bg-primary/90 inline-flex"
+      >
+        Inscribirme
+      </Button>
+    </div>
+  </div>
+
+  <!-- Divider inferior -->
+  <div class="h-px bg-footer-border w-full mb-6 relative"></div>
+
+  <!-- Bottom text -->
+  <div
+    class="flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 font-inter gap-4"
+  >
+    <p class="flex items-center gap-1">
+      Hecho con <Icon name="mdi:heart" class="text-gray-400 text-sm" /> para estudiantes
+      como vos.
+    </p>
+    <p class="text-center md:text-right">
+      © 2026 {SITE_TITLE}. Todos los derechos reservados. <a
+        href={ROUTES.PRIVACY}
+        class="underline hover:text-white transition-global ml-1"
+        >Políticas de Privacidad</a
+      >
+    </p>
   </div>
 </Section>
