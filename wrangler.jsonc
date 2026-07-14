@@ -4,10 +4,6 @@
 	"compatibility_flags": ["global_fetch_strictly_public", "nodejs_compat"],
 	"name": "iesl-website",
 	"pages_build_output_dir": "./dist",
-	"assets": {
-		"directory": "./dist",
-		"binding": "ASSETS"
-	},
 	"observability": {
 		"enabled": true
 	},
