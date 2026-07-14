@@ -7,15 +7,6 @@
 	"observability": {
 		"enabled": true
 	},
-	"assets": {
-		"binding": "STATIC_ASSETS"
-	},
-	"kv_namespaces": [
-		{
-			"binding": "SESSION",
-			"id": "placeholder_for_astro"
-		}
-	],
 	"r2_buckets": [
 		{
 			"binding": "MI_BUCKET_R2",
