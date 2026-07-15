@@ -65,7 +65,7 @@ export const GET: APIRoute = async ({ request }) => {
   }
 
   // ── Modo Listado ───────────────────────────────────────────────────────────
-  const listed = await bucket.list();
+  const listed = await bucket.list({ include: ["customMetadata"] });
 
   const files = listed.objects.map((obj: R2Object) => ({
     key: obj.key,
