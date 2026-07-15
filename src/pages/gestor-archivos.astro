@@ -362,7 +362,7 @@ if (!isAllowedHost) {
       async function downloadFile(key: string, name: string) {
         if (!currentToken) return;
         const btn = filesTableBody.querySelector<HTMLButtonElement>(`[data-key="${CSS.escape(key)}"]`);
-        if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner" style="margin-right:0"></span>`; }
+        if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner" style="border-width: 2px;"></span> Descargando`; }
         try {
           const res = await fetch(`/api/files?download=${encodeURIComponent(key)}`, { headers: { "Authorization": `Bearer ${currentToken}` } });
           if (!res.ok) { alert(`Error al descargar (${res.status})`); return; }
