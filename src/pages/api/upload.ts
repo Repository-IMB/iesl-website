@@ -35,10 +35,18 @@ export const POST: APIRoute = async ({ request }) => {
 
   // ── 3. Sanitización del nombre ────────────────────────────────────────────
   const originalName = file.name;
-  const ext = originalName.includes(".")
-    ? "." + originalName.split(".").pop()!.toLowerCase()
-    : "";
-  const safeKey = crypto.randomUUID() + ext;
+  
+  // Conservamos el nombre original para que el enlace público sea legible.
+  // Solo eliminamos barras (/) y barras invertidas (\) por seguridad.
+  let safeKey = originalName.replace(/[\/\\]/g, "").trim();
+  
+  // Fallback por si el nombre estuviera completamente vacío tras limpiar
+  if (!safeKey) {
+    const ext = originalName.includes(".")
+      ? "." + originalName.split(".").pop()!.toLowerCase()
+      : "";
+    safeKey = crypto.randomUUID() + ext;
+  }
 
   // ── 4. Subida a R2 ────────────────────────────────────────────────────────
   const bucket = env.MI_BUCKET_R2;

@@ -101,7 +101,7 @@ if (!isAllowedHost) {
             <button
               id="loginBtn"
               type="button"
-              class="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
+              class="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-white transition-all hover:opacity-90 active:scale-[0.98] cursor-pointer"
               style="background-color: var(--color-primary); font-size: 17px; font-family:'Poppins',sans-serif;"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
@@ -131,12 +131,12 @@ if (!isAllowedHost) {
             </div>
             <!-- Botones visibles solo en móviles, en la misma línea del título -->
             <div class="flex sm:hidden items-center gap-2 shrink-0">
-              <button id="refreshBtnMobile" type="button" class="flex items-center justify-center text-gray-600 w-10 h-10 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all">
+              <button id="refreshBtnMobile" type="button" class="flex items-center justify-center text-gray-600 w-10 h-10 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                 </svg>
               </button>
-              <button id="logoutBtnMobile" type="button" class="flex items-center justify-center text-red-600 w-10 h-10 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 transition-all">
+              <button id="logoutBtnMobile" type="button" class="flex items-center justify-center text-red-600 w-10 h-10 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 transition-all cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
                 </svg>
@@ -146,13 +146,13 @@ if (!isAllowedHost) {
           
           <!-- Botones visibles solo en escritorio -->
           <div class="hidden sm:flex items-center gap-3">
-            <button id="refreshBtn" type="button" class="flex items-center gap-1.5 font-semibold text-gray-600 px-4 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all" style="font-size: 15px;">
+            <button id="refreshBtn" type="button" class="flex items-center gap-1.5 font-semibold text-gray-600 px-4 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all cursor-pointer" style="font-size: 15px;">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
               </svg>
               Actualizar
             </button>
-            <button id="logoutBtn" type="button" class="flex items-center gap-1.5 font-semibold text-red-600 px-4 py-2 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 transition-all" style="font-size: 15px;">
+            <button id="logoutBtn" type="button" class="flex items-center gap-1.5 font-semibold text-red-600 px-4 py-2 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 transition-all cursor-pointer" style="font-size: 15px;">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
               </svg>
@@ -196,13 +196,13 @@ if (!isAllowedHost) {
                 <div id="uploadStatus" class="hidden p-3 font-medium rounded-xl border text-center" style="font-size: 15px;"></div>
 
                 <button id="uploadBtn" type="button" disabled
-                  class="w-full flex items-center justify-center gap-2 py-3 px-5 rounded-xl font-bold text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 active:scale-[0.98]"
+                  class="w-full flex items-center justify-center gap-2 py-3 px-5 rounded-xl font-bold text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 active:scale-[0.98] cursor-pointer"
                   style="background-color: var(--color-primary); font-size: 16px; font-family:'Poppins',sans-serif;"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" />
                   </svg>
-                  Subir a R2
+                  Subir archivo
                 </button>
               </div>
             </div>
@@ -316,6 +316,9 @@ if (!isAllowedHost) {
       function dlIconSvg() {
         return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:1rem;height:1rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>`;
       }
+      function linkIconSvg() {
+        return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:1rem;height:1rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" /></svg>`;
+      }
 
       function renderFiles(files: FileItem[]) {
         filesCount.textContent = `${files.length} archivo${files.length !== 1 ? "s" : ""}`;
@@ -341,13 +344,22 @@ if (!isAllowedHost) {
               <td style="padding:0.85rem 1.25rem;color:#9ca3af;font-size:13px;white-space:nowrap;">${escHtml(f.size)}</td>
               <td style="padding:0.85rem 1.25rem;color:#9ca3af;font-size:13px;white-space:nowrap;">${date}</td>
               <td style="padding:0.85rem 1.25rem;">
-                <button class="download-btn" data-key="${escHtml(f.key)}" data-name="${escHtml(f.originalName)}" type="button"
-                  style="display:flex;align-items:center;gap:0.4rem;font-size:13px;font-weight:600;padding:0.35rem 0.75rem;border-radius:0.5rem;transition:all 0.15s;margin-left:auto;color:var(--color-primary);background:color-mix(in srgb, var(--color-primary) 8%, white);border:none;cursor:pointer;"
-                  onmouseover="this.style.background='color-mix(in srgb, var(--color-primary) 15%, white)'"
-                  onmouseout="this.style.background='color-mix(in srgb, var(--color-primary) 8%, white)'"
-                >
-                  ${dlIconSvg()} Descargar
-                </button>
+                <div style="display:flex;align-items:center;gap:0.5rem;justify-content:flex-end;">
+                  <button class="copy-link-btn" data-key="${escHtml(f.key)}" type="button" title="Copiar enlace público"
+                    style="display:flex;align-items:center;gap:0.4rem;font-size:13px;font-weight:600;padding:0.35rem 0.75rem;border-radius:0.5rem;transition:all 0.15s;color:#4b5563;background:#f3f4f6;border:none;cursor:pointer;"
+                    onmouseover="this.style.background='#e5e7eb'"
+                    onmouseout="this.style.background='#f3f4f6'"
+                  >
+                    ${linkIconSvg()} Copiar
+                  </button>
+                  <button class="download-btn" data-key="${escHtml(f.key)}" data-name="${escHtml(f.originalName)}" type="button"
+                    style="display:flex;align-items:center;gap:0.4rem;font-size:13px;font-weight:600;padding:0.35rem 0.75rem;border-radius:0.5rem;transition:all 0.15s;color:var(--color-primary);background:color-mix(in srgb, var(--color-primary) 8%, white);border:none;cursor:pointer;"
+                    onmouseover="this.style.background='color-mix(in srgb, var(--color-primary) 15%, white)'"
+                    onmouseout="this.style.background='color-mix(in srgb, var(--color-primary) 8%, white)'"
+                  >
+                    ${dlIconSvg()} Descargar
+                  </button>
+                </div>
               </td>
             </tr>`;
         }).join("");
@@ -488,9 +500,35 @@ if (!isAllowedHost) {
         const dropped = e.dataTransfer?.files;
         if (dropped?.length) { const dt = new DataTransfer(); dt.items.add(dropped[0]); fileInput.files = dt.files; fileInput.dispatchEvent(new Event("change")); }
       });
+      async function copyToClipboard(text: string, btn: HTMLButtonElement) {
+        try {
+          await navigator.clipboard.writeText(text);
+          const originalHtml = btn.innerHTML;
+          btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:1rem;height:1rem;"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg> ¡Copiado!`;
+          btn.style.color = "#059669";
+          btn.style.background = "#d1fae5";
+          setTimeout(() => {
+            btn.innerHTML = originalHtml;
+            btn.style.color = "#4b5563";
+            btn.style.background = "#f3f4f6";
+          }, 2000);
+        } catch (err) {
+          alert("Error al copiar enlace");
+        }
+      }
+
       filesTableBody.addEventListener("click", (e: MouseEvent) => {
-        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".download-btn");
-        if (btn) void downloadFile(btn.dataset["key"] ?? "", btn.dataset["name"] ?? "");
+        const dlBtn = (e.target as HTMLElement).closest<HTMLButtonElement>(".download-btn");
+        if (dlBtn) void downloadFile(dlBtn.dataset["key"] ?? "", dlBtn.dataset["name"] ?? "");
+
+        const copyBtn = (e.target as HTMLElement).closest<HTMLButtonElement>(".copy-link-btn");
+        if (copyBtn) {
+          const key = copyBtn.dataset["key"] ?? "";
+          // Reemplaza esto con tu dominio R2 público real si lo configuras
+          const PUBLIC_R2_DOMAIN = "https://archivos.ieslinstitute.com";
+          const url = `${PUBLIC_R2_DOMAIN}/${encodeURIComponent(key)}`;
+          void copyToClipboard(url, copyBtn);
+        }
       });
 
       void init();
