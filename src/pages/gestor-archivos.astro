@@ -117,24 +117,35 @@ if (!isAllowedHost) {
       <div id="dashboardView" style="display:none;" class="flex-col flex-1 animate-fade-in">
 
         <!-- Top Bar -->
-        <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: color-mix(in srgb, var(--color-primary) 12%, white); color: var(--color-primary);">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" />
-              </svg>
-            </div>
-            <div>
-              <h2 class="font-bold text-gray-900 flex items-center gap-2" style="font-size: 20px; font-family:'Poppins',sans-serif;">
+        <header class="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-0 z-10 shadow-sm">
+          <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background-color: color-mix(in srgb, var(--color-primary) 12%, white); color: var(--color-primary);">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" />
+                </svg>
+              </div>
+              <h2 class="font-bold text-gray-900" style="font-size: 20px; font-family:'Poppins',sans-serif;">
                 Gestor de Archivos
-                <span class="px-2 py-0.5 rounded-full font-semibold flex items-center gap-1 bg-green-100 text-green-700 border border-green-200" style="font-size: 14px;">
-                  <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> R2 Activo
-                </span>
               </h2>
-              <p class="text-gray-400 font-medium" style="font-size: 16px;">IESL Institute &middot; Cloudflare R2</p>
+            </div>
+            <!-- Botones visibles solo en móviles, en la misma línea del título -->
+            <div class="flex sm:hidden items-center gap-2 shrink-0">
+              <button id="refreshBtnMobile" type="button" class="flex items-center justify-center text-gray-600 w-10 h-10 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                </svg>
+              </button>
+              <button id="logoutBtnMobile" type="button" class="flex items-center justify-center text-red-600 w-10 h-10 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
+                </svg>
+              </button>
             </div>
           </div>
-          <div class="flex items-center gap-2">
+          
+          <!-- Botones visibles solo en escritorio -->
+          <div class="hidden sm:flex items-center gap-3">
             <button id="refreshBtn" type="button" class="flex items-center gap-1.5 font-semibold text-gray-600 px-4 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all" style="font-size: 15px;">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
@@ -452,8 +463,14 @@ if (!isAllowedHost) {
       // ── Events ─────────────────────────────────────────────────────────────
       loginBtn.addEventListener("click", () => void doLogin());
       loginTokenEl.addEventListener("keydown", (e: KeyboardEvent) => { if (e.key === "Enter") void doLogin(); });
-      logoutBtn.addEventListener("click", doLogout);
-      refreshBtn.addEventListener("click", () => void loadFiles());
+      logoutBtn?.addEventListener("click", doLogout);
+      refreshBtn?.addEventListener("click", () => void loadFiles());
+      
+      const refreshBtnMobile = document.getElementById("refreshBtnMobile");
+      const logoutBtnMobile = document.getElementById("logoutBtnMobile");
+      refreshBtnMobile?.addEventListener("click", () => void loadFiles());
+      logoutBtnMobile?.addEventListener("click", doLogout);
+
       fileInput.addEventListener("change", () => {
         const file = fileInput.files?.[0];
         if (file) { uploadFileName.textContent = file.name; uploadFileName.classList.remove("hidden"); uploadBtn.disabled = false; setUploadStatus("none"); }
