@@ -12,8 +12,5 @@
 			"bucket_name": "ieslinstitute",
 			"preview_bucket_name": "ieslinstitute-preview"
 		}
-	],
-	"vars": {
-		"SECRET_ACCESS_TOKEN": ""
-	}
+	]
 }
