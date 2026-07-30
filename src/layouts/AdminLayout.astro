@@ -1,0 +1,80 @@
+---
+export interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title}</title>
+    <!-- Fuentes: coinciden con las del sitio principal -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet" />
+    <!-- Tailwind v4 CDN — válido para herramientas de administración internas -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4" is:inline></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --color-primary: #2AB3BA;
+        --color-secondary: #d62942;
+        --font-size-base: 1rem;
+      }
+      :root {
+        --color-primary: #2AB3BA;
+        --color-secondary: #d62942;
+      }
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      .animate-fade-in { animation: fade-in 0.35s ease-out; }
+      .spinner {
+        display: inline-block;
+        width: 1.1rem; height: 1.1rem;
+        border: 2px solid #e5e7eb;
+        border-top-color: var(--color-primary);
+        border-radius: 9999px;
+        animation: spin 0.7s linear infinite;
+        vertical-align: middle;
+        margin-right: 0.5rem;
+      }
+    </style>
+    <!-- Estilos del dropdown — fuera del bloque tailwindcss para que el navegador los procese directamente -->
+    <style is:inline>
+      .actions-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      .actions-dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 0.35rem;
+        min-width: 10rem;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        z-index: 20;
+        overflow: hidden;
+      }
+      .actions-dropdown-menu.open {
+        display: block;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-50 text-gray-800 min-h-screen" style="font-family: 'Inter', system-ui, sans-serif; font-size: 18px;">
+    <div class="flex flex-col min-h-screen">
+      <slot />
+    </div>
+  </body>
+</html>

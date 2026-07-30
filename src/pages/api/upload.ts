@@ -35,10 +35,13 @@ export const POST: APIRoute = async ({ request }) => {
 
   // ── 3. Sanitización del nombre ────────────────────────────────────────────
   const originalName = file.name;
-  
-  // Conservamos el nombre original para que el enlace público sea legible.
+
+  // Si el usuario proporcionó una clave personalizada, usarla; sino, usar el nombre del archivo.
   // Solo eliminamos barras (/) y barras invertidas (\) por seguridad.
-  let safeKey = originalName.replace(/[\/\\]/g, "").trim();
+  const customKey = (formData.get("customKey") as string | null)?.trim();
+  let safeKey = customKey
+    ? customKey.replace(/[\/\\]/g, "").trim()
+    : originalName.replace(/[\/\\]/g, "").trim();
   
   // Fallback por si el nombre estuviera completamente vacío tras limpiar
   if (!safeKey) {
