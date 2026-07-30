@@ -125,7 +125,10 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
               <td style="padding: 0.85rem 1.25rem;">
                 <div style="display:flex;align-items:center;gap:0.6rem;">
                   <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#f3f4f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${FILE_ICON_SVG}</div>
-                  <span style="font-weight:500;color:#1f2937;font-size:14px;word-break:break-word;">${escHtml(f.originalName)}</span>
+                  <div style="display:flex;flex-direction:column;justify-content:center;min-width:0;">
+                    <span style="font-weight:500;color:#1f2937;font-size:14px;word-break:break-word;line-height:1.2;">${escHtml(f.originalName)}</span>
+                    <a href="https://archivos.ieslinstitute.com/${encodeURIComponent(f.key)}" target="_blank" rel="noopener noreferrer" style="color:#9ca3af;font-size:12px;margin-top:0.25rem;text-decoration:none;word-break:break-all;transition:color 0.15s;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='#9ca3af'">archivos.ieslinstitute.com/${escHtml(f.key)}</a>
+                  </div>
                 </div>
               </td>
               <td style="padding:0.85rem 1.25rem;color:#9ca3af;font-size:13px;white-space:nowrap;">${escHtml(f.size)}</td>
