@@ -115,13 +115,13 @@ import AdminLayout from "../layouts/AdminLayout.astro";
         <main class="flex-1 p-6 md:p-8 max-w-5xl mx-auto w-full">
           <section>
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col h-full">
-              <div class="px-5 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between gap-4">
+              <div class="px-5 py-4 border-b border-gray-100 bg-gray-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <h3 class="font-bold text-gray-800 flex items-center gap-2" style="font-size: 15px; font-family:'Poppins',sans-serif;">
                   Lista de archivos
                   <span id="filesCount" class="bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-semibold" style="font-size: 13px;">—</span>
                 </h3>
                 <button id="openUploadModalBtn" type="button"
-                  class="flex items-center justify-center gap-2 py-2 px-4 rounded-xl font-bold text-white transition-all hover:opacity-90 active:scale-[0.98] cursor-pointer"
+                  class="w-full sm:w-auto flex items-center justify-center gap-2 py-2 px-4 rounded-xl font-bold text-white transition-all hover:opacity-90 active:scale-[0.98] cursor-pointer"
                   style="background-color: var(--color-primary); font-size: 14px; font-family:'Poppins',sans-serif;"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
