@@ -437,7 +437,18 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
         const file = fileInput.files?.[0];
         if (file) { 
           uploadFileName.textContent = file.name; uploadFileName.classList.remove("hidden"); uploadBtn.disabled = false; setUploadStatus("none");
-          const ext = file.name.includes(".") ? "." + file.name.split(".").pop()!.toLowerCase() : "";
+          const lastDot = file.name.lastIndexOf(".");
+          let base = file.name;
+          let ext = "";
+          if (lastDot > 0) {
+             base = file.name.substring(0, lastDot);
+             ext = file.name.substring(lastDot).toLowerCase();
+          }
+          
+          if (!customKeyInput.value.trim()) {
+            customKeyInput.value = base.replace(/[\s_]+/g, "-").replace(/[^\w-]/g, "").toLowerCase();
+          }
+
           if (ext) {
             document.getElementById("customKeyExt")!.textContent = ext;
             document.getElementById("customKeyExt")!.classList.remove("hidden");
@@ -447,6 +458,7 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
         } else { 
           uploadFileName.classList.add("hidden"); uploadBtn.disabled = true;
           document.getElementById("customKeyExt")!.classList.add("hidden");
+          customKeyInput.value = "";
         }
       });
       uploadBtn.addEventListener("click", () => void uploadFile());
