@@ -103,6 +103,7 @@ export const PUT: APIRoute = async ({ request }) => {
       await bucket.put(targetKey, file.stream(), {
         httpMetadata: {
           contentType: file.type || "application/octet-stream",
+          cacheControl: "public, max-age=0, must-revalidate"
         },
         customMetadata: { originalName: file.name },
       });
@@ -116,7 +117,10 @@ export const PUT: APIRoute = async ({ request }) => {
         );
       }
       await bucket.put(targetKey, existing.body, {
-        httpMetadata: existing.httpMetadata,
+        httpMetadata: {
+          ...existing.httpMetadata,
+          cacheControl: "public, max-age=0, must-revalidate"
+        },
         customMetadata: existing.customMetadata ?? {},
       });
     }

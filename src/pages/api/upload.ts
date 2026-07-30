@@ -56,7 +56,10 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     await bucket.put(safeKey, file.stream(), {
-      httpMetadata: { contentType: file.type || "application/octet-stream" },
+      httpMetadata: { 
+        contentType: file.type || "application/octet-stream",
+        cacheControl: "public, max-age=0, must-revalidate"
+      },
       customMetadata: { originalName },
     });
   } catch (err) {
