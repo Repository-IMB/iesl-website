@@ -220,8 +220,14 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
         const fd = new FormData();
         fd.append("file", file);
         // Enviar enlace personalizado si el usuario lo proporcionó
-        const customKey = customKeyInput.value.trim();
-        if (customKey) fd.append("customKey", customKey);
+        let customKey = customKeyInput.value.trim();
+        if (customKey) {
+          const ext = document.getElementById("customKeyExt")!.textContent;
+          if (ext && !customKey.toLowerCase().endsWith(ext)) {
+            customKey += ext;
+          }
+          fd.append("customKey", customKey);
+        }
         uploadBtn.disabled = true;
         progressWrap.classList.remove("hidden");
         progressBar.style.width = "0%";
@@ -262,7 +268,24 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
       function openEditModal(key: string, name: string) {
         editingKey = key;
         editCurrentName.textContent = name;
-        editKeyInput.value = key;
+        
+        const lastDotIdx = key.lastIndexOf(".");
+        let baseKey = key;
+        let ext = "";
+        if (lastDotIdx > 0) {
+          baseKey = key.substring(0, lastDotIdx);
+          ext = key.substring(lastDotIdx).toLowerCase();
+        }
+
+        editKeyInput.value = baseKey;
+        const extSpan = document.getElementById("editKeyExt")!;
+        if (ext) {
+          extSpan.textContent = ext;
+          extSpan.classList.remove("hidden");
+        } else {
+          extSpan.textContent = "";
+          extSpan.classList.add("hidden");
+        }
         editFileInput.value = "";
         editFileNameEl.textContent = "";
         editFileNameEl.classList.add("hidden");
@@ -282,12 +305,18 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
 
       async function saveEdit() {
         if (!currentToken) return;
-        const newKey = editKeyInput.value.trim().replace(/[\/\\]/g, "");
+        let newKey = editKeyInput.value.trim().replace(/[\/\\]/g, "");
         const file = editFileInput.files?.[0];
 
         if (!newKey) {
           setEditStatus("error", "El enlace no puede estar vacío.");
           return;
+        }
+
+        const extSpan = document.getElementById("editKeyExt")!;
+        const ext = extSpan.textContent;
+        if (ext && !newKey.toLowerCase().endsWith(ext)) {
+          newKey += ext;
         }
         if (!file && newKey === editingKey) {
           setEditStatus("error", "No hay cambios que guardar.");
@@ -406,8 +435,19 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
 
       fileInput.addEventListener("change", () => {
         const file = fileInput.files?.[0];
-        if (file) { uploadFileName.textContent = file.name; uploadFileName.classList.remove("hidden"); uploadBtn.disabled = false; setUploadStatus("none"); }
-        else { uploadFileName.classList.add("hidden"); uploadBtn.disabled = true; }
+        if (file) { 
+          uploadFileName.textContent = file.name; uploadFileName.classList.remove("hidden"); uploadBtn.disabled = false; setUploadStatus("none");
+          const ext = file.name.includes(".") ? "." + file.name.split(".").pop()!.toLowerCase() : "";
+          if (ext) {
+            document.getElementById("customKeyExt")!.textContent = ext;
+            document.getElementById("customKeyExt")!.classList.remove("hidden");
+          } else {
+            document.getElementById("customKeyExt")!.classList.add("hidden");
+          }
+        } else { 
+          uploadFileName.classList.add("hidden"); uploadBtn.disabled = true;
+          document.getElementById("customKeyExt")!.classList.add("hidden");
+        }
       });
       uploadBtn.addEventListener("click", () => void uploadFile());
       dropZone.addEventListener("dragover", (e: DragEvent) => {
@@ -483,8 +523,27 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
         if (file) {
           editFileNameEl.textContent = file.name;
           editFileNameEl.classList.remove("hidden");
+          const ext = file.name.includes(".") ? "." + file.name.split(".").pop()!.toLowerCase() : "";
+          const extSpan = document.getElementById("editKeyExt")!;
+          if (ext) {
+            extSpan.textContent = ext;
+            extSpan.classList.remove("hidden");
+          } else {
+            extSpan.textContent = "";
+            extSpan.classList.add("hidden");
+          }
         } else {
           editFileNameEl.classList.add("hidden");
+          const lastDotIdx = editingKey.lastIndexOf(".");
+          const ext = lastDotIdx > 0 ? editingKey.substring(lastDotIdx).toLowerCase() : "";
+          const extSpan = document.getElementById("editKeyExt")!;
+          if (ext) {
+            extSpan.textContent = ext;
+            extSpan.classList.remove("hidden");
+          } else {
+            extSpan.textContent = "";
+            extSpan.classList.add("hidden");
+          }
         }
       });
 
