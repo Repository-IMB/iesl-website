@@ -18,30 +18,31 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
       const loginError     = document.getElementById("loginError")!;
       const logoutBtn      = document.getElementById("logoutBtn") as HTMLButtonElement;
       const refreshBtn     = document.getElementById("refreshBtn") as HTMLButtonElement;
-      const fileInput      = document.getElementById("fileInput") as HTMLInputElement;
-      const dropZone       = document.getElementById("dropZone")!;
-      const uploadBtn      = document.getElementById("uploadBtn") as HTMLButtonElement;
-      const uploadFileName = document.getElementById("uploadFileName")!;
-      const customKeyInput = document.getElementById("customKeyInput") as HTMLInputElement;
-      const progressWrap   = document.getElementById("progressWrap")!;
-      const progressBar    = document.getElementById("progressBar")!;
-      const uploadStatus   = document.getElementById("uploadStatus")!;
-      const filesTableBody = document.getElementById("filesTableBody") as HTMLTableSectionElement;
-      const filesCount     = document.getElementById("filesCount")!;
+      // ── DOM refs ──────────────────────────────────────────────────────
+      const openUploadModalBtn = document.getElementById("openUploadModalBtn") as HTMLButtonElement;
 
       // ── Modal DOM refs ──────────────────────────────────────────────────────
-      const editModal         = document.getElementById("editModal")!;
-      const editModalBackdrop = document.getElementById("editModalBackdrop")!;
-      const editModalClose    = document.getElementById("editModalClose") as HTMLButtonElement;
-      const editCurrentName   = document.getElementById("editCurrentName")!;
-      const editKeyInput      = document.getElementById("editKeyInput") as HTMLInputElement;
-      const editDropZone      = document.getElementById("editDropZone")!;
-      const editFileInput     = document.getElementById("editFileInput") as HTMLInputElement;
-      const editFileNameEl    = document.getElementById("editFileName")!;
-      const editStatus        = document.getElementById("editStatus")!;
-      const editDeleteBtn     = document.getElementById("editDeleteBtn") as HTMLButtonElement;
-      const editCancelBtn     = document.getElementById("editCancelBtn") as HTMLButtonElement;
-      const editSaveBtn       = document.getElementById("editSaveBtn") as HTMLButtonElement;
+      const modalFile         = document.getElementById("modalFile")!;
+      const modalFileBackdrop = document.getElementById("modalFileBackdrop")!;
+      const modalFileClose    = document.getElementById("modalFileClose") as HTMLButtonElement;
+      const modalFileTitle    = document.getElementById("modalFileTitle")!;
+      const modalFileCurrentInfo = document.getElementById("modalFileCurrentInfo")!;
+      const modalFileCurrentName = document.getElementById("modalFileCurrentName")!;
+      const modalFileDropLabel   = document.getElementById("modalFileDropLabel")!;
+      const modalFileDropZone    = document.getElementById("modalFileDropZone")!;
+      const modalFileInput       = document.getElementById("modalFileInput") as HTMLInputElement;
+      const modalFileName        = document.getElementById("modalFileName")!;
+      const modalKeyInput        = document.getElementById("modalKeyInput") as HTMLInputElement;
+      const modalKeyOptional     = document.getElementById("modalKeyOptional")!;
+      const modalKeyExt          = document.getElementById("modalKeyExt")!;
+      const modalProgressWrap    = document.getElementById("modalProgressWrap")!;
+      const modalProgressBar     = document.getElementById("modalProgressBar")!;
+      const modalFileStatus      = document.getElementById("modalFileStatus")!;
+      const modalFileDeleteBtn   = document.getElementById("modalFileDeleteBtn") as HTMLButtonElement;
+      const modalFileCancelBtn   = document.getElementById("modalFileCancelBtn") as HTMLButtonElement;
+      const modalFileSaveBtn     = document.getElementById("modalFileSaveBtn") as HTMLButtonElement;
+
+      let currentMode: "upload" | "edit" = "upload";
 
       // ── Helpers ────────────────────────────────────────────────────────────
       function escHtml(s: string) {
@@ -91,14 +92,14 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
           setTimeout(() => { toastNotif.className = "hidden"; }, 300);
         }, 3000);
       }
-      function setUploadStatus(type: "success" | "error" | "none", msg = "") {
-        uploadStatus.className = "hidden p-3 font-medium rounded-xl border text-center";
-        uploadStatus.style.fontSize = "14px";
+      function setModalStatus(type: "success" | "error" | "none", msg = "") {
+        modalFileStatus.className = "hidden p-3 font-medium rounded-xl border text-center";
+        modalFileStatus.style.fontSize = "14px";
         if (type === "none") return;
-        uploadStatus.textContent = msg;
-        uploadStatus.classList.remove("hidden");
-        if (type === "success") uploadStatus.classList.add("bg-green-50","text-green-700","border-green-200");
-        else uploadStatus.classList.add("bg-red-50","text-red-600","border-red-200");
+        modalFileStatus.textContent = msg;
+        modalFileStatus.classList.remove("hidden");
+        if (type === "success") modalFileStatus.classList.add("bg-green-50","text-green-700","border-green-200");
+        else modalFileStatus.classList.add("bg-red-50","text-red-600","border-red-200");
       }
 
       // ── Render Files ───────────────────────────────────────────────────────
@@ -213,145 +214,147 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
         }
       }
 
-      // ── Upload ─────────────────────────────────────────────────────────────
-      async function uploadFile() {
-        if (!currentToken || !fileInput.files?.length) return;
-        const file = fileInput.files[0];
-        const fd = new FormData();
-        fd.append("file", file);
-        // Enviar enlace personalizado si el usuario lo proporcionó
-        let customKey = customKeyInput.value.trim();
-        if (customKey) {
-          const ext = document.getElementById("customKeyExt")!.textContent;
-          if (ext && !customKey.toLowerCase().endsWith(ext)) {
-            customKey += ext;
-          }
-          fd.append("customKey", customKey);
-        }
-        uploadBtn.disabled = true;
-        progressWrap.classList.remove("hidden");
-        progressBar.style.width = "0%";
-        setUploadStatus("none");
-        let pct = 0;
-        const timer = setInterval(() => { pct = Math.min(pct + 8, 85); progressBar.style.width = `${pct}%`; }, 150);
-        try {
-          const res = await fetch("/api/upload", { method: "POST", headers: { "Authorization": `Bearer ${currentToken}` }, body: fd });
-          clearInterval(timer); progressBar.style.width = "100%";
-          if (res.ok) {
-            setUploadStatus("success", `"${file.name}" subido correctamente`);
-            fileInput.value = ""; uploadFileName.textContent = ""; uploadFileName.classList.add("hidden");
-            customKeyInput.value = "";
-            uploadBtn.disabled = true; await loadFiles();
-          } else {
-            const body = await res.json() as UploadResponse;
-            setUploadStatus("error", `Error: ${body.error ?? res.status}`);
-          }
-        } catch {
-          clearInterval(timer);
-          setUploadStatus("error", "Error de red. Inténtalo de nuevo.");
-        } finally {
-          setTimeout(() => { progressWrap.classList.add("hidden"); progressBar.style.width = "0%"; }, 1600);
-        }
-      }
-
-      // ── Edit Modal ────────────────────────────────────────────────────────
-      function setEditStatus(type: "success" | "error" | "none", msg = "") {
-        editStatus.className = "hidden p-3 font-medium rounded-xl border text-center";
-        editStatus.style.fontSize = "14px";
-        if (type === "none") return;
-        editStatus.textContent = msg;
-        editStatus.classList.remove("hidden");
-        if (type === "success") editStatus.classList.add("bg-green-50", "text-green-700", "border-green-200");
-        else editStatus.classList.add("bg-red-50", "text-red-600", "border-red-200");
-      }
-
-      function openEditModal(key: string, name: string) {
-        editingKey = key;
-        editCurrentName.textContent = name;
+      // ── Modal Unified Logic ───────────────────────────────────────────────
+      
+      function openModal(mode: "upload" | "edit", key?: string, name?: string) {
+        currentMode = mode;
+        setModalStatus("none");
+        modalFileInput.value = "";
+        modalFileName.classList.add("hidden");
+        modalKeyExt.classList.add("hidden");
+        modalKeyInput.value = "";
+        modalFileSaveBtn.disabled = false;
         
-        const lastDotIdx = key.lastIndexOf(".");
-        let baseKey = key;
-        let ext = "";
-        if (lastDotIdx > 0) {
-          baseKey = key.substring(0, lastDotIdx);
-          ext = key.substring(lastDotIdx).toLowerCase();
-        }
-
-        editKeyInput.value = baseKey;
-        const extSpan = document.getElementById("editKeyExt")!;
-        if (ext) {
-          extSpan.textContent = ext;
-          extSpan.classList.remove("hidden");
+        if (mode === "upload") {
+          editingKey = "";
+          modalFileTitle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4" style="color: var(--color-primary);"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" /></svg> Subir archivo`;
+          modalFileCurrentInfo.classList.add("hidden");
+          modalFileDropLabel.innerHTML = `Archivo`;
+          modalKeyOptional.classList.remove("hidden");
+          modalFileDeleteBtn.classList.add("hidden");
+          modalFileDeleteBtn.classList.remove("flex");
+          modalFileSaveBtn.disabled = true; // wait for file
+          modalFileSaveBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" /></svg> Subir archivo`;
         } else {
-          extSpan.textContent = "";
-          extSpan.classList.add("hidden");
-        }
-        editFileInput.value = "";
-        editFileNameEl.textContent = "";
-        editFileNameEl.classList.add("hidden");
-        setEditStatus("none");
-        editSaveBtn.disabled = false;
-        editDeleteBtn.disabled = false;
-        editModal.style.display = "flex";
-      }
-
-      function closeEditModal() {
-        editModal.style.display = "none";
-        editingKey = "";
-        editFileInput.value = "";
-        editFileNameEl.classList.add("hidden");
-        setEditStatus("none");
-      }
-
-      async function saveEdit() {
-        if (!currentToken) return;
-        let newKey = editKeyInput.value.trim().replace(/[\/\\]/g, "");
-        const file = editFileInput.files?.[0];
-
-        if (!newKey) {
-          setEditStatus("error", "El enlace no puede estar vacío.");
-          return;
-        }
-
-        const extSpan = document.getElementById("editKeyExt")!;
-        const ext = extSpan.textContent;
-        if (ext && !newKey.toLowerCase().endsWith(ext)) {
-          newKey += ext;
-        }
-        if (!file && newKey === editingKey) {
-          setEditStatus("error", "No hay cambios que guardar.");
-          return;
-        }
-
-        editSaveBtn.disabled = true;
-        editDeleteBtn.disabled = true;
-        setEditStatus("none");
-
-        const fd = new FormData();
-        fd.append("oldKey", editingKey);
-        fd.append("newKey", newKey);
-        if (file) fd.append("file", file);
-
-        try {
-          const res = await fetch("/api/files-manage", {
-            method: "PUT",
-            headers: { "Authorization": `Bearer ${currentToken}` },
-            body: fd,
-          });
-          if (res.ok) {
-            setEditStatus("success", "Archivo actualizado correctamente.");
-            await loadFiles();
-            setTimeout(closeEditModal, 1200);
-          } else {
-            const body = await res.json() as UploadResponse;
-            setEditStatus("error", `Error: ${body.error ?? res.status}`);
-            editSaveBtn.disabled = false;
-            editDeleteBtn.disabled = false;
+          editingKey = key || "";
+          modalFileTitle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4" style="color: var(--color-primary);"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg> Editar archivo`;
+          modalFileCurrentInfo.classList.remove("hidden");
+          modalFileCurrentName.textContent = name || "";
+          modalFileDropLabel.innerHTML = `Reemplazar archivo <span class="font-normal text-gray-400">(opcional)</span>`;
+          modalKeyOptional.classList.add("hidden");
+          modalFileDeleteBtn.classList.remove("hidden");
+          modalFileDeleteBtn.classList.add("flex");
+          modalFileDeleteBtn.disabled = false;
+          modalFileSaveBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg> Guardar cambios`;
+          
+          const lastDotIdx = editingKey.lastIndexOf(".");
+          let baseKey = editingKey;
+          let ext = "";
+          if (lastDotIdx > 0) {
+            baseKey = editingKey.substring(0, lastDotIdx);
+            ext = editingKey.substring(lastDotIdx).toLowerCase();
           }
-        } catch {
-          setEditStatus("error", "Error de red. Inténtalo de nuevo.");
-          editSaveBtn.disabled = false;
-          editDeleteBtn.disabled = false;
+          modalKeyInput.value = baseKey;
+          if (ext) {
+            modalKeyExt.textContent = ext;
+            modalKeyExt.classList.remove("hidden");
+          }
+        }
+        modalFile.style.display = "flex";
+      }
+
+      function closeModal() {
+        modalFile.style.display = "none";
+        editingKey = "";
+        modalFileInput.value = "";
+        modalFileName.classList.add("hidden");
+        setModalStatus("none");
+      }
+
+      async function submitForm() {
+        if (!currentToken) return;
+        const file = modalFileInput.files?.[0];
+        
+        let targetKey = modalKeyInput.value.trim().replace(/[\/\\]/g, "");
+        const ext = modalKeyExt.textContent;
+
+        if (currentMode === "upload") {
+          if (!file) return;
+          const fd = new FormData();
+          fd.append("file", file);
+          if (targetKey) {
+            if (ext && !targetKey.toLowerCase().endsWith(ext)) targetKey += ext;
+            fd.append("customKey", targetKey);
+          }
+          modalFileSaveBtn.disabled = true;
+          modalProgressWrap.classList.remove("hidden");
+          modalProgressBar.style.width = "0%";
+          setModalStatus("none");
+          let pct = 0;
+          const timer = setInterval(() => { pct = Math.min(pct + 8, 85); modalProgressBar.style.width = `${pct}%`; }, 150);
+          try {
+            const res = await fetch("/api/upload", { method: "POST", headers: { "Authorization": `Bearer ${currentToken}` }, body: fd });
+            clearInterval(timer); modalProgressBar.style.width = "100%";
+            if (res.ok) {
+              setModalStatus("success", `"${file.name}" subido correctamente`);
+              await loadFiles();
+              setTimeout(closeModal, 1200);
+            } else {
+              const body = await res.json() as UploadResponse;
+              setModalStatus("error", `Error: ${body.error ?? res.status}`);
+              modalFileSaveBtn.disabled = false;
+            }
+          } catch {
+            clearInterval(timer);
+            setModalStatus("error", "Error de red. Inténtalo de nuevo.");
+            modalFileSaveBtn.disabled = false;
+          } finally {
+            setTimeout(() => { modalProgressWrap.classList.add("hidden"); modalProgressBar.style.width = "0%"; }, 1600);
+          }
+        } else {
+          // Edit Mode
+          if (!targetKey) {
+            setModalStatus("error", "El enlace no puede estar vacío.");
+            return;
+          }
+          if (ext && !targetKey.toLowerCase().endsWith(ext)) {
+            targetKey += ext;
+          }
+          if (!file && targetKey === editingKey) {
+            setModalStatus("error", "No hay cambios que guardar.");
+            return;
+          }
+
+          modalFileSaveBtn.disabled = true;
+          modalFileDeleteBtn.disabled = true;
+          setModalStatus("none");
+
+          const fd = new FormData();
+          fd.append("oldKey", editingKey);
+          fd.append("newKey", targetKey);
+          if (file) fd.append("file", file);
+
+          try {
+            const res = await fetch("/api/files-manage", {
+              method: "PUT",
+              headers: { "Authorization": `Bearer ${currentToken}` },
+              body: fd,
+            });
+            if (res.ok) {
+              setModalStatus("success", "Archivo actualizado correctamente.");
+              await loadFiles();
+              setTimeout(closeModal, 1200);
+            } else {
+              const body = await res.json() as UploadResponse;
+              setModalStatus("error", `Error: ${body.error ?? res.status}`);
+              modalFileSaveBtn.disabled = false;
+              modalFileDeleteBtn.disabled = false;
+            }
+          } catch {
+            setModalStatus("error", "Error de red. Inténtalo de nuevo.");
+            modalFileSaveBtn.disabled = false;
+            modalFileDeleteBtn.disabled = false;
+          }
         }
       }
 
@@ -359,8 +362,8 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
         if (!currentToken) return;
         if (!confirm(`¿Eliminar "${key}"?\nEsta acción no se puede deshacer.`)) return;
 
-        editSaveBtn.disabled = true;
-        editDeleteBtn.disabled = true;
+        modalFileSaveBtn.disabled = true;
+        modalFileDeleteBtn.disabled = true;
 
         try {
           const res = await fetch("/api/files-manage", {
@@ -373,17 +376,17 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
           });
           if (res.ok) {
             await loadFiles();
-            closeEditModal();
+            closeModal();
           } else {
             const body = await res.json() as UploadResponse;
-            setEditStatus("error", `Error: ${body.error ?? res.status}`);
-            editSaveBtn.disabled = false;
-            editDeleteBtn.disabled = false;
+            setModalStatus("error", `Error: ${body.error ?? res.status}`);
+            modalFileSaveBtn.disabled = false;
+            modalFileDeleteBtn.disabled = false;
           }
         } catch {
-          setEditStatus("error", "Error de red. Inténtalo de nuevo.");
-          editSaveBtn.disabled = false;
-          editDeleteBtn.disabled = false;
+          setModalStatus("error", "Error de red. Inténtalo de nuevo.");
+          modalFileSaveBtn.disabled = false;
+          modalFileDeleteBtn.disabled = false;
         }
       }
 
@@ -406,7 +409,7 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
       function doLogout() {
         currentToken = null; localStorage.removeItem(TOKEN_KEY);
         filesTableBody.innerHTML = ""; filesCount.textContent = "—";
-        setUploadStatus("none"); showLogin();
+        setModalStatus("none"); showLogin();
       }
 
       // ── Init — decide qué vista mostrar sin ningún flash ──────────────────
@@ -433,46 +436,6 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
       refreshBtnMobile?.addEventListener("click", () => void loadFiles());
       logoutBtnMobile?.addEventListener("click", doLogout);
 
-      fileInput.addEventListener("change", () => {
-        const file = fileInput.files?.[0];
-        if (file) { 
-          uploadFileName.textContent = file.name; uploadFileName.classList.remove("hidden"); uploadBtn.disabled = false; setUploadStatus("none");
-          const lastDot = file.name.lastIndexOf(".");
-          let base = file.name;
-          let ext = "";
-          if (lastDot > 0) {
-             base = file.name.substring(0, lastDot);
-             ext = file.name.substring(lastDot).toLowerCase();
-          }
-          
-          if (!customKeyInput.value.trim()) {
-            customKeyInput.value = base.replace(/[\s_]+/g, "-").replace(/[^\w-]/g, "").toLowerCase();
-          }
-
-          if (ext) {
-            document.getElementById("customKeyExt")!.textContent = ext;
-            document.getElementById("customKeyExt")!.classList.remove("hidden");
-          } else {
-            document.getElementById("customKeyExt")!.classList.add("hidden");
-          }
-        } else { 
-          uploadFileName.classList.add("hidden"); uploadBtn.disabled = true;
-          document.getElementById("customKeyExt")!.classList.add("hidden");
-          customKeyInput.value = "";
-        }
-      });
-      uploadBtn.addEventListener("click", () => void uploadFile());
-      dropZone.addEventListener("dragover", (e: DragEvent) => {
-        e.preventDefault();
-        dropZone.style.borderColor = "var(--color-primary)";
-        dropZone.style.background = "color-mix(in srgb, var(--color-primary) 5%, white)";
-      });
-      dropZone.addEventListener("dragleave", () => { dropZone.style.borderColor = ""; dropZone.style.background = ""; });
-      dropZone.addEventListener("drop", (e: DragEvent) => {
-        e.preventDefault(); dropZone.style.borderColor = ""; dropZone.style.background = "";
-        const dropped = e.dataTransfer?.files;
-        if (dropped?.length) { const dt = new DataTransfer(); dt.items.add(dropped[0]); fileInput.files = dt.files; fileInput.dispatchEvent(new Event("change")); }
-      });
       async function copyToClipboard(text: string, btn: HTMLButtonElement) {
         try {
           await navigator.clipboard.writeText(text);
@@ -482,19 +445,17 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
         }
       }
 
-      // ── Dropdown toggle: abrir/cerrar al hacer clic en el engranaje ───────
       function closeAllDropdowns() {
         document.querySelectorAll(".actions-dropdown-menu.open").forEach(m => m.classList.remove("open"));
       }
+      
       document.addEventListener("click", (e: MouseEvent) => {
-        // Si el clic no fue dentro de un dropdown, cerrar todos
         if (!(e.target as HTMLElement).closest(".actions-dropdown")) closeAllDropdowns();
       });
 
       filesTableBody.addEventListener("click", (e: MouseEvent) => {
         const target = e.target as HTMLElement;
 
-        // Toggle del dropdown
         const toggleBtn = target.closest<HTMLButtonElement>(".actions-toggle");
         if (toggleBtn) {
           e.stopPropagation();
@@ -505,7 +466,6 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
           return;
         }
 
-        // Acciones del dropdown
         const dlBtn = target.closest<HTMLButtonElement>(".download-btn");
         if (dlBtn) { closeAllDropdowns(); void downloadFile(dlBtn.dataset["key"] ?? "", dlBtn.dataset["name"] ?? ""); return; }
 
@@ -520,70 +480,85 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
         }
 
         const editBtn = target.closest<HTMLButtonElement>(".edit-btn");
-        if (editBtn) { closeAllDropdowns(); openEditModal(editBtn.dataset["key"] ?? "", editBtn.dataset["name"] ?? ""); return; }
+        if (editBtn) { closeAllDropdowns(); openModal("edit", editBtn.dataset["key"] ?? "", editBtn.dataset["name"] ?? ""); return; }
       });
 
-      // ── Edit Modal Events ──────────────────────────────────────────────────
-      editModalClose.addEventListener("click", closeEditModal);
-      editModalBackdrop.addEventListener("click", closeEditModal);
-      editCancelBtn.addEventListener("click", closeEditModal);
-      editSaveBtn.addEventListener("click", () => void saveEdit());
-      editDeleteBtn.addEventListener("click", () => void deleteFile(editingKey));
+      openUploadModalBtn.addEventListener("click", () => openModal("upload"));
 
-      editFileInput.addEventListener("change", () => {
-        const file = editFileInput.files?.[0];
+      // ── Edit Modal Events ──────────────────────────────────────────────────
+      modalFileClose.addEventListener("click", closeModal);
+      modalFileBackdrop.addEventListener("click", closeModal);
+      modalFileCancelBtn.addEventListener("click", closeModal);
+      modalFileSaveBtn.addEventListener("click", () => void submitForm());
+      modalFileDeleteBtn.addEventListener("click", () => void deleteFile(editingKey));
+
+      modalFileInput.addEventListener("change", () => {
+        const file = modalFileInput.files?.[0];
         if (file) {
-          editFileNameEl.textContent = file.name;
-          editFileNameEl.classList.remove("hidden");
-          const ext = file.name.includes(".") ? "." + file.name.split(".").pop()!.toLowerCase() : "";
-          const extSpan = document.getElementById("editKeyExt")!;
+          modalFileName.textContent = file.name;
+          modalFileName.classList.remove("hidden");
+          if (currentMode === "upload") modalFileSaveBtn.disabled = false;
+          
+          const lastDot = file.name.lastIndexOf(".");
+          let base = file.name;
+          let ext = "";
+          if (lastDot > 0) {
+             base = file.name.substring(0, lastDot);
+             ext = file.name.substring(lastDot).toLowerCase();
+          }
+          
+          if (currentMode === "upload" && !modalKeyInput.value.trim()) {
+            modalKeyInput.value = base.replace(/[\s_]+/g, "-").replace(/[^\w-]/g, "").toLowerCase();
+          }
+
           if (ext) {
-            extSpan.textContent = ext;
-            extSpan.classList.remove("hidden");
+            modalKeyExt.textContent = ext;
+            modalKeyExt.classList.remove("hidden");
           } else {
-            extSpan.textContent = "";
-            extSpan.classList.add("hidden");
+            modalKeyExt.textContent = "";
+            modalKeyExt.classList.add("hidden");
           }
         } else {
-          editFileNameEl.classList.add("hidden");
+          modalFileName.classList.add("hidden");
+          if (currentMode === "upload") modalFileSaveBtn.disabled = true;
+
           const lastDotIdx = editingKey.lastIndexOf(".");
           const ext = lastDotIdx > 0 ? editingKey.substring(lastDotIdx).toLowerCase() : "";
-          const extSpan = document.getElementById("editKeyExt")!;
-          if (ext) {
-            extSpan.textContent = ext;
-            extSpan.classList.remove("hidden");
+          if (ext && currentMode === "edit") {
+            modalKeyExt.textContent = ext;
+            modalKeyExt.classList.remove("hidden");
           } else {
-            extSpan.textContent = "";
-            extSpan.classList.add("hidden");
+            modalKeyExt.textContent = "";
+            modalKeyExt.classList.add("hidden");
           }
         }
       });
 
-      editDropZone.addEventListener("dragover", (e: DragEvent) => {
+      modalFileDropZone.addEventListener("dragover", (e: DragEvent) => {
         e.preventDefault();
-        editDropZone.style.borderColor = "var(--color-primary)";
-        editDropZone.style.background = "color-mix(in srgb, var(--color-primary) 5%, white)";
+        modalFileDropZone.style.borderColor = "var(--color-primary)";
+        modalFileDropZone.style.background = "color-mix(in srgb, var(--color-primary) 5%, white)";
       });
-      editDropZone.addEventListener("dragleave", () => {
-        editDropZone.style.borderColor = "";
-        editDropZone.style.background = "";
+      modalFileDropZone.addEventListener("dragleave", () => {
+        modalFileDropZone.style.borderColor = "";
+        modalFileDropZone.style.background = "";
       });
-      editDropZone.addEventListener("drop", (e: DragEvent) => {
+      modalFileDropZone.addEventListener("drop", (e: DragEvent) => {
         e.preventDefault();
-        editDropZone.style.borderColor = "";
-        editDropZone.style.background = "";
+        modalFileDropZone.style.borderColor = "";
+        modalFileDropZone.style.background = "";
         const dropped = e.dataTransfer?.files;
         if (dropped?.length) {
           const dt = new DataTransfer();
           dt.items.add(dropped[0]);
-          editFileInput.files = dt.files;
-          editFileInput.dispatchEvent(new Event("change"));
+          modalFileInput.files = dt.files;
+          modalFileInput.dispatchEvent(new Event("change"));
         }
       });
 
       // Cerrar modal con Escape
       document.addEventListener("keydown", (e: KeyboardEvent) => {
-        if (e.key === "Escape" && editModal.style.display !== "none") closeEditModal();
+        if (e.key === "Escape" && modalFile.style.display !== "none") closeModal();
       });
 
       void init();
