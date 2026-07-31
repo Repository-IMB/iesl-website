@@ -1,5 +1,7 @@
 import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../utils/admin-icons";
 
+const TRASH_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:1.2rem;height:1.2rem;"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>';
+
 // ── Types ──────────────────────────────────────────────────────────────
       interface FileItem { key: string; originalName: string; size: string; sizeBytes: number; uploaded: string; }
       interface FilesResponse { files: FileItem[]; }
@@ -38,7 +40,6 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
       const modalProgressWrap    = document.getElementById("modalProgressWrap")!;
       const modalProgressBar     = document.getElementById("modalProgressBar")!;
       const modalFileStatus      = document.getElementById("modalFileStatus")!;
-      const modalFileDeleteBtn   = document.getElementById("modalFileDeleteBtn") as HTMLButtonElement;
       const modalFileCancelBtn   = document.getElementById("modalFileCancelBtn") as HTMLButtonElement;
       const modalFileSaveBtn     = document.getElementById("modalFileSaveBtn") as HTMLButtonElement;
 
@@ -125,7 +126,7 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
             <tr style="transition:background 0.15s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
               <td style="padding: 0.85rem 1.25rem;">
                 <div style="display:flex;align-items:center;gap:0.6rem;">
-                  <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#f3f4f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${FILE_ICON_SVG}</div>
+                  <div class="hidden sm:flex" style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#f3f4f6;align-items:center;justify-content:center;flex-shrink:0;">${FILE_ICON_SVG}</div>
                   <div style="display:flex;flex-direction:column;justify-content:center;min-width:0;">
                     <span style="font-weight:500;color:#1f2937;font-size:14px;word-break:break-word;line-height:1.2;">${escHtml(f.originalName)}</span>
                     <a href="https://archivos.ieslinstitute.com/${encodeURIComponent(f.key)}" target="_blank" rel="noopener noreferrer" style="color:#9ca3af;font-size:12px;margin-top:0.25rem;text-decoration:none;word-break:break-all;transition:color 0.15s;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='#9ca3af'">archivos.ieslinstitute.com/${escHtml(f.key)}</a>
@@ -164,6 +165,13 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
                       onmouseout="this.style.background='none'"
                     >
                       ${DL_ICON_SVG} Descargar
+                    </button>
+                    <button class="delete-btn" data-key="${escHtml(f.key)}" type="button"
+                      style="display:flex;align-items:center;gap:0.5rem;width:100%;padding:0.55rem 0.85rem;border:none;background:none;font-size:13px;font-weight:500;color:#ef4444;cursor:pointer;transition:background 0.12s;text-align:left;"
+                      onmouseover="this.style.background='#fef2f2'"
+                      onmouseout="this.style.background='none'"
+                    >
+                      ${TRASH_ICON_SVG} Eliminar
                     </button>
                   </div>
                 </div>
@@ -231,8 +239,6 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
           modalFileCurrentInfo.classList.add("hidden");
           modalFileDropLabel.innerHTML = `Archivo`;
           modalKeyOptional.classList.remove("hidden");
-          modalFileDeleteBtn.classList.add("hidden");
-          modalFileDeleteBtn.classList.remove("flex");
           modalFileSaveBtn.disabled = true; // wait for file
           modalFileSaveBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" /></svg> Subir archivo`;
         } else {
@@ -242,10 +248,7 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
           modalFileCurrentName.textContent = name || "";
           modalFileDropLabel.innerHTML = `Reemplazar archivo <span class="font-normal text-gray-400">(opcional)</span>`;
           modalKeyOptional.classList.add("hidden");
-          modalFileDeleteBtn.classList.remove("hidden");
-          modalFileDeleteBtn.classList.add("flex");
-          modalFileDeleteBtn.disabled = false;
-          modalFileSaveBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg> Guardar cambios`;
+          modalFileSaveBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg> Guardar`;
           
           const lastDotIdx = editingKey.lastIndexOf(".");
           let baseKey = editingKey;
@@ -326,7 +329,6 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
           }
 
           modalFileSaveBtn.disabled = true;
-          modalFileDeleteBtn.disabled = true;
           setModalStatus("none");
 
           const fd = new FormData();
@@ -348,12 +350,10 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
               const body = await res.json() as UploadResponse;
               setModalStatus("error", `Error: ${body.error ?? res.status}`);
               modalFileSaveBtn.disabled = false;
-              modalFileDeleteBtn.disabled = false;
             }
           } catch {
             setModalStatus("error", "Error de red. Inténtalo de nuevo.");
             modalFileSaveBtn.disabled = false;
-            modalFileDeleteBtn.disabled = false;
           }
         }
       }
@@ -361,9 +361,6 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
       async function deleteFile(key: string) {
         if (!currentToken) return;
         if (!confirm(`¿Eliminar "${key}"?\nEsta acción no se puede deshacer.`)) return;
-
-        modalFileSaveBtn.disabled = true;
-        modalFileDeleteBtn.disabled = true;
 
         try {
           const res = await fetch("/api/files-manage", {
@@ -375,18 +372,14 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
             body: JSON.stringify({ key }),
           });
           if (res.ok) {
+            showToast("Archivo eliminado", "success");
             await loadFiles();
-            closeModal();
           } else {
             const body = await res.json() as UploadResponse;
-            setModalStatus("error", `Error: ${body.error ?? res.status}`);
-            modalFileSaveBtn.disabled = false;
-            modalFileDeleteBtn.disabled = false;
+            showToast(`Error: ${body.error ?? res.status}`, "error");
           }
         } catch {
-          setModalStatus("error", "Error de red. Inténtalo de nuevo.");
-          modalFileSaveBtn.disabled = false;
-          modalFileDeleteBtn.disabled = false;
+          showToast("Error de red al eliminar", "error");
         }
       }
 
@@ -481,6 +474,9 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
 
         const editBtn = target.closest<HTMLButtonElement>(".edit-btn");
         if (editBtn) { closeAllDropdowns(); openModal("edit", editBtn.dataset["key"] ?? "", editBtn.dataset["name"] ?? ""); return; }
+
+        const deleteBtn = target.closest<HTMLButtonElement>(".delete-btn");
+        if (deleteBtn) { closeAllDropdowns(); void deleteFile(deleteBtn.dataset["key"] ?? ""); return; }
       });
 
       openUploadModalBtn.addEventListener("click", () => openModal("upload"));
@@ -490,7 +486,6 @@ import { FILE_ICON_SVG, DL_ICON_SVG, LINK_ICON_SVG, EDIT_ICON_SVG } from "../../
       modalFileBackdrop.addEventListener("click", closeModal);
       modalFileCancelBtn.addEventListener("click", closeModal);
       modalFileSaveBtn.addEventListener("click", () => void submitForm());
-      modalFileDeleteBtn.addEventListener("click", () => void deleteFile(editingKey));
 
       modalFileInput.addEventListener("change", () => {
         const file = modalFileInput.files?.[0];
