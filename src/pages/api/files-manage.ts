@@ -97,6 +97,16 @@ export const PUT: APIRoute = async ({ request }) => {
 
   const bucket = env.MI_BUCKET_R2;
 
+  if (keyChanged) {
+    const existingDest = await bucket.head(targetKey);
+    if (existingDest) {
+      return new Response(
+        JSON.stringify({ error: "El enlace ya está en uso por otro archivo" }),
+        { status: 409, headers: { "Content-Type": "application/json" } }
+      );
+    }
+  }
+
   try {
     if (hasFile) {
       // Escenario 1 o 3: se sube archivo nuevo a targetKey

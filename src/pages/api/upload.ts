@@ -54,6 +54,14 @@ export const POST: APIRoute = async ({ request }) => {
   // ── 4. Subida a R2 ────────────────────────────────────────────────────────
   const bucket = env.MI_BUCKET_R2;
 
+  const existingFile = await bucket.head(safeKey);
+  if (existingFile) {
+    return new Response(
+      JSON.stringify({ error: "El enlace ya está en uso por otro archivo" }),
+      { status: 409, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   try {
     await bucket.put(safeKey, file.stream(), {
       httpMetadata: { 
