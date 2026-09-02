@@ -1,0 +1,110 @@
+---
+// Introducción del curso: lo principal que el alumno debe saber antes de
+// empezar. El texto extendido llega por el slot (cuerpo MDX del curso).
+interface Props {
+  objective: string;
+  requirement: string;
+  software: string;
+  modality: string;
+  duration: {
+    videos: string;
+    practice: string;
+    project: string;
+    total: string;
+  };
+}
+
+const { objective, requirement, software, modality, duration } = Astro.props;
+
+const fichas = [
+  {
+    label: "Requisito previo",
+    value: requirement,
+    // Lista de verificación
+    path: "M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z",
+  },
+  {
+    label: "Software",
+    value: software,
+    // Monitor
+    path: "M4 4h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-6v2h3v2H7v-2h3v-2H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm1 2v8h14V6H5z",
+  },
+  {
+    label: "Modalidad",
+    value: modality,
+    // Reloj
+    path: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 5h-2v6l5 3 1-1.7-4-2.3z",
+  },
+];
+
+const tiempos = [
+  { label: "Contenido audiovisual", value: duration.videos },
+  { label: "Prácticas y ejercicios", value: duration.practice },
+  { label: "Proyecto final", value: duration.project },
+];
+---
+
+<section class="mx-auto max-w-6xl px-4 py-14 sm:px-6 md:py-18">
+  <p class="text-[0.75rem] font-bold tracking-wider text-primary uppercase">Introducción</p>
+  <h2 class="mt-2 font-poppins font-bold text-slate-900">Antes de empezar</h2>
+
+  <div class="mt-8 grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:gap-12">
+    <div>
+      <div class="rounded-2xl border-l-4 border-primary bg-white p-6 shadow-sm md:p-7">
+        <h3 class="font-poppins text-[1.05rem] font-bold text-slate-900">Objetivo del programa</h3>
+        <p class="mt-3 leading-relaxed text-slate-600">{objective}</p>
+      </div>
+
+      <!-- Cuerpo MDX del curso -->
+      <div
+        class="prose prose-slate mt-8 max-w-none prose-headings:font-poppins prose-a:text-primary prose-strong:text-slate-900"
+      >
+        <slot />
+      </div>
+    </div>
+
+    <aside class="flex flex-col gap-4">
+      {
+        fichas.map((ficha) => (
+          <div class="flex gap-4 rounded-2xl border-2 border-primary/15 bg-white p-5 transition-global hover:border-primary/40">
+            <span
+              class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10"
+              aria-hidden="true"
+            >
+              <svg viewBox="0 0 24 24" class="h-5 w-5 fill-primary">
+                <path d={ficha.path} />
+              </svg>
+            </span>
+            <div>
+              <p class="text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">
+                {ficha.label}
+              </p>
+              <p class="mt-1 text-[0.9rem] leading-snug font-semibold text-slate-800">
+                {ficha.value}
+              </p>
+            </div>
+          </div>
+        ))
+      }
+
+      <div class="rounded-2xl bg-slate-900 p-6 text-white">
+        <p class="text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">
+          Tiempo estimado
+        </p>
+        <p class="mt-1 font-poppins text-[1.9rem] leading-none font-bold text-primary">
+          {duration.total}
+        </p>
+        <ul class="mt-5 flex flex-col gap-2.5 border-t border-white/12 pt-4">
+          {
+            tiempos.map((tiempo) => (
+              <li class="flex items-baseline justify-between gap-3 text-[0.85rem]">
+                <span class="text-slate-300">{tiempo.label}</span>
+                <span class="shrink-0 font-semibold text-white">{tiempo.value}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </aside>
+  </div>
+</section>

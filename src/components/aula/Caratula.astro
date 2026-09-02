@@ -1,0 +1,97 @@
+---
+// Carátula del curso: lo primero que ve el alumno al entrar al aula.
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  kind: string;
+  title: string;
+  description: string;
+  image: ImageMetadata;
+  modality: string;
+  totalModules: number;
+  totalLessons: number;
+  totalDuration: string;
+  /** Ancla del primer módulo del temario. */
+  startHref: string;
+}
+
+const {
+  kind,
+  title,
+  description,
+  image,
+  modality,
+  totalModules,
+  totalLessons,
+  totalDuration,
+  startHref,
+} = Astro.props;
+
+const datos = [
+  { label: "Modalidad", value: modality },
+  { label: "Módulos", value: String(totalModules) },
+  { label: "Lecciones", value: String(totalLessons) },
+  { label: "Duración", value: totalDuration },
+];
+---
+
+<section class="relative overflow-hidden bg-slate-900 text-white">
+  <!--
+    La portada se renderiza con <img> y no con SmartImage/<Image>: en SSR el
+    servicio de imágenes está en modo passthrough, y el helper image() del
+    schema ya resolvió el asset en build. Va como fondo decorativo.
+  -->
+  <img
+    src={image.src}
+    width={image.width}
+    height={image.height}
+    alt=""
+    aria-hidden="true"
+    fetchpriority="high"
+    class="absolute inset-0 h-full w-full scale-105 object-cover opacity-20 blur-[3px]"
+  />
+  <div
+    class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900/92 to-primary/35"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="relative mx-auto max-w-6xl px-4 py-14 sm:px-6 md:py-20">
+    <span
+      class="inline-flex items-center gap-2 rounded-full bg-primary/20 px-4 py-1.5 text-[0.75rem] font-bold tracking-wide text-primary uppercase ring-1 ring-primary/40 ring-inset"
+    >
+      {kind}
+    </span>
+
+    <h1 class="mt-5 max-w-3xl font-poppins leading-[1.1] font-bold text-balance text-white">
+      {title}
+    </h1>
+
+    <p class="mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-slate-300">
+      {description}
+    </p>
+
+    <a
+      href={startHref}
+      class="mt-8 inline-flex items-center gap-2.5 rounded-full bg-primary px-7 py-3.5 font-poppins text-[0.95rem] font-bold text-white shadow-lg shadow-primary/25 transition-global hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-xl"
+    >
+      Comenzar el curso
+      <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
+        <path d="M10 6l6 6-6 6-1.4-1.4L13.2 12 8.6 7.4z" />
+      </svg>
+    </a>
+
+    <dl class="mt-12 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-white/12 pt-8 sm:grid-cols-4">
+      {
+        datos.map((dato) => (
+          <div>
+            <dt class="text-[0.7rem] font-semibold tracking-wider text-slate-400 uppercase">
+              {dato.label}
+            </dt>
+            <dd class="mt-1 font-poppins text-[1.15rem] font-bold text-white">{dato.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>

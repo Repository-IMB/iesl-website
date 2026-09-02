@@ -1,0 +1,72 @@
+---
+// Barra superior del aula. Los iconos van como SVG inline porque astro-icon
+// no funciona en el runtime workerd de Cloudflare.
+interface Props {
+  studentName: string;
+  /** Ruta de vuelta y su etiqueta. Sin ruta no se muestra el enlace. */
+  backHref?: string;
+  backLabel?: string;
+}
+
+const { studentName, backHref, backLabel = "Volver" } = Astro.props;
+const initials = studentName
+  .split(" ")
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((part) => part[0]?.toUpperCase() ?? "")
+  .join("");
+---
+
+<header class="sticky top-0 z-20 border-b border-slate-200 bg-white/85 backdrop-blur-md">
+  <div class="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-6">
+    {
+      backHref ? (
+        <a
+          href={backHref}
+          class="inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[0.8rem] font-semibold text-primary transition-global hover:bg-primary/10"
+        >
+          <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
+            <path d="M14 6l-6 6 6 6 1.4-1.4L10.8 12l4.6-4.6z" />
+          </svg>
+          {backLabel}
+        </a>
+      ) : (
+        <span class="font-poppins text-[0.95rem] font-bold text-slate-900">Aula IESL</span>
+      )
+    }
+
+    <div class="ml-auto flex items-center gap-3">
+      <div class="hidden text-right sm:block">
+        <p class="text-[0.8rem] leading-tight font-semibold text-slate-900">{studentName}</p>
+        <p class="text-[0.7rem] leading-tight text-slate-500">Alumno</p>
+      </div>
+      <span
+        class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/12 font-poppins text-[0.8rem] font-bold text-primary"
+        aria-hidden="true"
+      >
+        {initials || "?"}
+      </span>
+      <form method="POST" action="/api/aula/logout">
+        <button
+          type="button"
+          data-logout
+          class="cursor-pointer rounded-full border border-slate-200 px-3 py-1.5 text-[0.8rem] font-semibold text-slate-600 transition-global hover:border-secondary/40 hover:text-secondary"
+        >
+          Salir
+        </button>
+      </form>
+    </div>
+  </div>
+</header>
+
+<script>
+  // El botón envía el formulario; se maneja por JS para poder deshabilitarlo y
+  // evitar dobles envíos al cerrar sesión.
+  document.querySelectorAll<HTMLButtonElement>("[data-logout]").forEach((button) => {
+    button.addEventListener("click", () => {
+      button.disabled = true;
+      button.textContent = "Saliendo...";
+      button.closest("form")?.submit();
+    });
+  });
+</script>

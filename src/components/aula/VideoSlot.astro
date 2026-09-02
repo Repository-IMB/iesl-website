@@ -1,0 +1,42 @@
+---
+// Reproductor de la lección. Mientras el video no esté publicado, el slot
+// muestra el estado en lugar de un reproductor vacío.
+interface Props {
+  videoUrl: string | null;
+  title: string;
+}
+
+const { videoUrl, title } = Astro.props;
+---
+
+{
+  videoUrl ? (
+    <div class="aspect-video w-full overflow-hidden rounded-xl bg-black">
+      <video
+        class="h-full w-full"
+        controls
+        playsinline
+        preload="metadata"
+        src={videoUrl}
+        title={title}
+      />
+    </div>
+  ) : (
+    <div class="grid aspect-video w-full place-items-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50">
+      <div class="px-6 text-center">
+        <span
+          class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-white shadow-sm"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 24 24" class="h-6 w-6 fill-slate-300">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </span>
+        <p class="mt-3 text-[0.9rem] font-semibold text-slate-500">Video pendiente de publicación</p>
+        <p class="mt-1 text-[0.8rem] text-slate-400">
+          El equipo académico todavía no cargó el video de esta lección.
+        </p>
+      </div>
+    </div>
+  )
+}

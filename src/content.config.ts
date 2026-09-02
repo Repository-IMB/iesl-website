@@ -113,4 +113,66 @@ const blog = defineCollection({
     }),
 });
 
-export const collections = { courses, blog };
+// ─── Aula virtual ───────────────────────────────────────────────────────────
+// Los cursos del aula (cursos beneficio) viven aparte del catálogo de
+// marketing: aquí se dictan, allá se venden. Ambas collections comparten el
+// árbol src/content/aula/ y no se solapan porque los globs son distintos:
+// */index.mdx para el curso, */modulos/*.mdx para sus módulos.
+
+const aulaCursos = defineCollection({
+  loader: glob({
+    pattern: "*/index.{md,mdx}",
+    base: "./src/content/aula",
+    generateId: slugFromIndex,
+  }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      /** Etiqueta de formato, p.ej. "Microcurso asincrónico". */
+      kind: z.string(),
+      description: z.string(),
+      image: image(),
+      objective: z.string(),
+      modality: z.string(),
+      requirement: z.string(),
+      software: z.string(),
+      totalModules: z.number(),
+      totalLessons: z.number(),
+      duration: z.object({
+        videos: z.string(),
+        practice: z.string(),
+        project: z.string(),
+        total: z.string(),
+      }),
+    }),
+});
+
+const aulaModulos = defineCollection({
+  loader: glob({
+    pattern: "*/modulos/*.{md,mdx}",
+    base: "./src/content/aula",
+  }),
+  schema: z.object({
+    /** Slug del curso al que pertenece (debe existir en aulaCursos). */
+    course: z.string(),
+    number: z.number(),
+    title: z.string(),
+    duration: z.string(),
+    /** El proyecto final se muestra distinto al resto de los módulos. */
+    isProject: z.boolean().default(false),
+    lessons: z
+      .array(
+        z.object({
+          /** Numeración del temario, p.ej. "1.1". */
+          code: z.string(),
+          title: z.string(),
+          topic: z.string(),
+          /** Vacío mientras el video no esté publicado. */
+          videoUrl: z.string().nullable().default(null),
+        })
+      )
+      .default([]),
+  }),
+});
+
+export const collections = { courses, blog, aulaCursos, aulaModulos };

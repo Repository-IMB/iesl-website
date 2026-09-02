@@ -1,0 +1,36 @@
+---
+// Layout de las páginas del aula (SSR, Cloudflare Workers).
+//
+// No usa Layout.astro porque ese llama a getImage() de astro:assets para las
+// imágenes de Open Graph, que necesita APIs de Node y crashea en workerd.
+// Sí importa global.css: verificado bajo `wrangler dev`, se compila en build y
+// se sirve como hoja de estilos normal (nada de Tailwind por CDN).
+import "../styles/global.css";
+import { Font } from "astro:assets";
+import { SITE_TITLE } from "../constants/consts";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <!-- El aula es contenido privado de los alumnos: no se indexa. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#2AB3BA" />
+    <title>{`${title} | ${SITE_TITLE}`}</title>
+    <Font cssVariable="--font-poppins" />
+    <Font cssVariable="--font-inter" />
+  </head>
+  <body class="min-h-dvh w-full overflow-x-clip bg-slate-50 text-slate-800">
+    <slot />
+  </body>
+</html>

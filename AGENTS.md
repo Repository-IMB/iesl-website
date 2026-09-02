@@ -12,7 +12,7 @@ Guía operativa canónica para agentes de código (Antigravity, Claude Code, etc
 - **Interactividad:** Vanilla JS en `<script>`; Swiper para carruseles. Backend externo de formularios: `https://api.ieslinstitute.com/mailer.php`.
 - **Almacenamiento:** Cloudflare R2 (`binding: MI_BUCKET_R2`, bucket: `ieslinstitute`).
 - **Autenticación de API:** token Bearer leído desde variable de entorno `SECRET_ACCESS_TOKEN` (en `.dev.vars` local, en Wrangler secrets en producción).
-- **Node.js mínimo:** `>=22.12.0`. Wrangler: `^4.x`.
+- **Node.js mínimo:** `>=22.15.0` (Astro 7 importa `registerHooks` de `node:module`). Wrangler: `^4.x`.
 
 ## Comandos
 | Comando | Acción |
@@ -23,6 +23,13 @@ Guía operativa canónica para agentes de código (Antigravity, Claude Code, etc
 | `npm run preview` | Previsualiza `/dist` |
 | `npx astro check` | Chequeo de tipos |
 | `npm run generate-types` | Regenera `worker-configuration.d.ts` con tipos de bindings Cloudflare |
+| `npm run aula:schema` | Crea el esquema del aula en la base D1 **local** |
+| `npm run aula:schema:remoto` | Idem en la base D1 de Cloudflare |
+| `npm run aula:alta` | Da de alta un alumno del aula (ver Aula virtual) |
+
+**Node:** con una versión menor a 22.15 el dev server muere sin mensaje útil (el error real
+queda en `.astro/dev.log`). El repo fija `22.23.2` en `.node-version` para gestores como fnm o
+nvm.
 
 ## Estructura y convenciones
 
@@ -35,8 +42,9 @@ Guía operativa canónica para agentes de código (Antigravity, Claude Code, etc
 ### Páginas y rutas SSR (Cloudflare Workers)
 - Declarar `export const prerender = false;` al inicio del archivo.
 - **No usar `Layout.astro`** en páginas SSR: el Layout importa `getImage()` y `Font` de `astro:assets`, que requieren APIs de Node.js no disponibles en el runtime `workerd` de Cloudflare → crash de "Network connection lost".
-- **No importar `global.css` directamente** en páginas SSR: causa que Vite intente compilar Tailwind dos veces y satura la memoria de Node.js.
-- **Alternativa para estilos en SSR:** usar Tailwind CSS v4 vía CDN (`https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4`) con `<style type="text/tailwindcss">` para variables del tema.
+- **Sí se puede importar `global.css` en páginas SSR.** Verificado bajo `wrangler dev`: el CSS se compila en build y se sirve como hoja de estilos normal (`<link rel="stylesheet">`). Es lo que hace `AulaLayout.astro`. Preferir esto para cualquier página que vea un usuario final: da el Tailwind y los tokens reales del sitio.
+- **Tailwind por CDN solo para herramientas internas.** `AdminLayout.astro` (gestor de archivos) lo usa por razones históricas, pero compila el CSS en el navegador: pesa y parpadea al cargar. No replicarlo en páginas de alumnos.
+- **El desborde de memoria del dev server no lo causa el CSS.** Lo dispara el optimizador de dependencias de Vite cuando aparece un archivo nuevo en `src/`: el "program reload" que sigue supera el heap por defecto de Node y mata el servidor sin mensaje útil (el error real queda en `.astro/dev.log`). Por eso `npm run dev` pasa por `scripts/dev.mjs`, que sube el heap a 8 GB.
 - Leer secrets y bindings con `import { env } from "cloudflare:workers"`.
 
 ### Gestor de archivos (admin interno)
@@ -76,7 +84,7 @@ Los archivos subidos en local **no aparecen** en el dashboard de Cloudflare y vi
 - **No** hardcodear hex en páginas públicas: usar `text-primary`, `bg-secondary`, grises estándar de Tailwind.
 - Tokens en `global.css`: `--color-primary: #2AB3BA`, `--color-secondary: #d62942`. Transición global: `.transition-global`.
 - Headings con `clamp()`; base `18px`. Reutilizar `Section`, `Button`, `InfoBadge`.
-- En páginas SSR (sin `global.css`): definir los tokens con `@theme` dentro de `<style type="text/tailwindcss">`.
+- En páginas SSR se importa `global.css` y se usan los mismos tokens que en el resto del sitio (ver `AulaLayout.astro`). Solo el gestor de archivos define tokens con `@theme` dentro de `<style type="text/tailwindcss">`, porque usa Tailwind por CDN.
 
 ### JS del cliente
 - CSS de librerías externas en el **frontmatter**; JS interactivo en `<script>`. Re-inicializar con `astro:page-load` cuando aplique.
@@ -148,6 +156,41 @@ Seguir el checklist de `PROJECT_GUIDE.md`: página en `pages/`, tipos en `types/
 - Respetar el patrón **Datos → Props → Componentes**: nunca poner datos de contenido inline en un componente.
 - No agregar dependencias pesadas sin necesidad; el sitio es mayormente estático y liviano a propósito.
 - Al crear páginas SSR, recordar las limitaciones del runtime Cloudflare Workers: sin `Layout.astro`, sin `getImage()`, sin `astro-icon`, sin `global.css` directo.
+
+## Aula virtual (`/aula`)
+
+Donde se **dictan** los cursos beneficio, aparte del catálogo de marketing de `/cursos`.
+Diseño completo en `docs/specs/aula-virtual-power-bi.md`.
+
+| Ruta | Qué hace |
+|---|---|
+| `/aula` | Con un solo curso matriculado redirige a él; con varios los lista |
+| `/aula/login` | Acceso con correo y contraseña |
+| `/aula/[curso]` | Carátula, introducción y temario con el título de cada lección |
+| `/aula/[curso]/modulo/[n]` | Un módulo con **todas sus lecciones en la misma página** |
+| `POST /api/aula/login` · `logout` | Sesión |
+
+- **Sesiones:** `Astro.session` (API nativa de Astro 7) sobre el KV `SESSION` que configura el
+  adapter. No hay manejo manual de cookies ni de KV. `src/lib/aula/auth.ts` solo hace PBKDF2.
+- **Datos:** D1 `DB_AULA`, tablas `students` y `enrollments` (`db/aula-schema.sql`).
+  `enrollments` decide qué curso ve cada alumno.
+- **Protección:** `src/middleware.ts`. Solo lee la sesión bajo `/aula`; fuera de ahí no toca
+  nada, porque leerla implica tocar las cabeceras del request y eso emite un warning en cada
+  build de las páginas prerenderizadas.
+- **Contenido:** collections `aulaCursos` (`src/content/aula/*/index.mdx`) y `aulaModulos`
+  (`src/content/aula/*/modulos/*.mdx`). El cuerpo MDX del curso es la introducción; el de cada
+  módulo, su presentación. Las lecciones van en el frontmatter del módulo.
+- **Videos:** `videoUrl` por lección, opcional. Vacío muestra "video pendiente de publicación".
+  Se cargan editando el MDX, sin tocar código.
+- **Alta de alumnos** (no hay panel web):
+  ```
+  npm run aula:alta -- --email ana@empresa.com --pass Clave123 --nombre Ana Perez --curso power-bi-fundamentos
+  ```
+  Escribe en la base local; agregar `--remoto` para la de Cloudflare.
+- **Sin progreso ni exámenes todavía:** la estructura está preparada, pero no implementados.
+- **Un curso nuevo del aula:** crear `src/content/aula/<slug>/index.mdx` + `cover.webp` +
+  `modulos/<n>-<slug>.mdx`, y matricular alumnos con `--curso <slug>`. No hace falta tocar
+  código.
 
 ## Fuera de alcance / no tocar
 - El backend externo `api.ieslinstitute.com/mailer.php` (no vive en este repo).

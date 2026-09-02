@@ -1,0 +1,36 @@
+---
+// Una lección dentro de la página del módulo. Todas las lecciones del módulo
+// se apilan en la misma página, así que cada una lleva su propia ancla.
+import VideoSlot from "./VideoSlot.astro";
+
+interface Props {
+  code: string;
+  title: string;
+  topic: string;
+  videoUrl: string | null;
+  /** Posición dentro del módulo, empezando en 1. */
+  index: number;
+  total: number;
+}
+
+const { code, title, topic, videoUrl, index, total } = Astro.props;
+const anchor = `leccion-${code.replace(/\./g, "-")}`;
+---
+
+<section id={anchor} class="scroll-mt-20">
+  <div class="rounded-2xl border-2 border-primary/12 bg-white p-6 md:p-8">
+    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <span class="font-poppins text-[0.8rem] font-bold text-primary">{code}</span>
+      <span class="text-[0.75rem] text-slate-400">Lección {index} de {total}</span>
+    </div>
+
+    <h2 class="mt-2 font-poppins text-[1.3rem] leading-snug font-bold text-slate-900 md:text-[1.5rem]">
+      {title}
+    </h2>
+    <p class="mt-2 leading-relaxed text-slate-600">{topic}</p>
+
+    <div class="mt-6">
+      <VideoSlot videoUrl={videoUrl} title={`${code} ${title}`} />
+    </div>
+  </div>
+</section>

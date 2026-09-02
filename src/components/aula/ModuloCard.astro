@@ -1,0 +1,120 @@
+---
+// Un módulo en el temario. Muestra el título de cada lección: es lo que el
+// alumno necesita ver para saber qué contiene el módulo antes de entrar.
+interface Lesson {
+  code: string;
+  title: string;
+  topic: string;
+}
+
+interface Props {
+  /** Posición en el temario, empezando en 1. */
+  position: number;
+  number: number;
+  title: string;
+  duration: string;
+  isProject: boolean;
+  lessons: Lesson[];
+  href: string;
+}
+
+const { position, number, title, duration, isProject, lessons, href } = Astro.props;
+---
+
+<article
+  id={`modulo-${number}`}
+  class:list={[
+    "scroll-mt-24 overflow-hidden rounded-2xl border-2 bg-white transition-global",
+    isProject ? "border-secondary/30 hover:border-secondary/60" : "border-primary/15 hover:border-primary/45",
+  ]}
+>
+  <div class="flex flex-col gap-5 p-6 sm:flex-row sm:items-start sm:gap-6 md:p-7">
+    <span
+      class:list={[
+        "grid h-14 w-14 shrink-0 place-items-center rounded-2xl font-poppins text-[1.2rem] font-bold text-white",
+        isProject ? "bg-secondary" : "bg-primary",
+      ]}
+      aria-hidden="true"
+    >
+      {isProject ? "PF" : position}
+    </span>
+
+    <div class="min-w-0 flex-1">
+      <p
+        class:list={[
+          "text-[0.7rem] font-bold tracking-wider uppercase",
+          isProject ? "text-secondary" : "text-primary",
+        ]}
+      >
+        {isProject ? "Proyecto final" : `Módulo ${position}`}
+      </p>
+      <h3 class="mt-1 font-poppins text-[1.15rem] leading-snug font-bold text-slate-900">
+        {title}
+      </h3>
+
+      <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[0.8rem] text-slate-500">
+        <span class="inline-flex items-center gap-1.5">
+          <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 fill-current" aria-hidden="true">
+            <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 5h-2v6l5 3 1-1.7-4-2.3z" />
+          </svg>
+          {duration}
+        </span>
+        {
+          !isProject && (
+            <span class="inline-flex items-center gap-1.5">
+              <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 fill-current" aria-hidden="true">
+                <path d="M4 5h16v2H4zm0 6h16v2H4zm0 6h10v2H4z" />
+              </svg>
+              {lessons.length} {lessons.length === 1 ? "lección" : "lecciones"}
+            </span>
+          )
+        }
+      </div>
+    </div>
+
+    <a
+      href={href}
+      class:list={[
+        "inline-flex shrink-0 items-center gap-2 self-start rounded-full px-5 py-2.5 font-poppins text-[0.85rem] font-bold text-white transition-global hover:-translate-y-0.5",
+        isProject ? "bg-secondary hover:bg-secondary/90" : "bg-primary hover:bg-primary/90",
+      ]}
+    >
+      {isProject ? "Ver el proyecto" : "Entrar"}
+      <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 fill-current" aria-hidden="true">
+        <path d="M10 6l6 6-6 6-1.4-1.4L13.2 12 8.6 7.4z" />
+      </svg>
+    </a>
+  </div>
+
+  {
+    lessons.length > 0 && (
+      <ol class="divide-y divide-slate-100 border-t border-slate-100 bg-slate-50/60">
+        {lessons.map((lesson) => (
+          <li>
+            <a
+              href={`${href}#leccion-${lesson.code.replace(/\./g, "-")}`}
+              class="flex items-baseline gap-3 px-6 py-3 transition-global hover:bg-white md:px-7"
+            >
+              <span
+                class:list={[
+                  "w-9 shrink-0 font-poppins text-[0.75rem] font-bold",
+                  isProject ? "text-secondary" : "text-primary",
+                ]}
+              >
+                {lesson.code}
+              </span>
+              <span class="min-w-0">
+                <span class="block text-[0.9rem] leading-snug font-semibold text-slate-800">
+                  {lesson.title}
+                </span>
+                <span class="mt-0.5 block text-[0.8rem] leading-snug text-slate-500">
+                  {lesson.topic}
+                </span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    )
+  }
+</article>

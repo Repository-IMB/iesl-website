@@ -1,0 +1,81 @@
+---
+// Punto de entrada del aula. El middleware ya garantizó que hay sesión.
+// Con un solo curso matriculado se entra directo; con varios se elige.
+export const prerender = false;
+
+import { env } from "cloudflare:workers";
+import AulaLayout from "../../layouts/AulaLayout.astro";
+import AulaHeader from "../../components/aula/AulaHeader.astro";
+import { getEnrolledCourses } from "../../lib/aula/db";
+import { getAulaCursos } from "../../lib/aula/content";
+
+const student = Astro.locals.student!;
+
+let slugsMatriculados: string[] = [];
+try {
+  slugsMatriculados = await getEnrolledCourses(env.DB_AULA, student.id);
+} catch (error) {
+  console.error("[aula] no se pudo leer las matrículas:", error);
+  return new Response(
+    "El aula no está disponible en este momento. Volvé a intentar en unos minutos.",
+    { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8" } }
+  );
+}
+
+const cursos = (await getAulaCursos()).filter((curso) => slugsMatriculados.includes(curso.id));
+
+if (cursos.length === 1) {
+  return Astro.redirect(`/aula/${cursos[0].id}`);
+}
+---
+
+<AulaLayout title="Mis cursos">
+  <AulaHeader studentName={student.full_name || student.email} />
+
+  <main class="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+    <p class="text-[0.75rem] font-bold tracking-wider text-primary uppercase">Aula IESL</p>
+    <h1 class="mt-2 font-poppins font-bold text-slate-900">Mis cursos</h1>
+
+    {
+      cursos.length === 0 ? (
+        <div class="mt-8 rounded-2xl border-2 border-dashed border-slate-200 bg-white p-10 text-center">
+          <p class="font-poppins text-[1.05rem] font-bold text-slate-800">
+            Todavía no tenés cursos habilitados
+          </p>
+          <p class="mx-auto mt-2 max-w-md text-slate-500">
+            Cuando el equipo de IESL habilite tu curso beneficio, va a aparecer acá.
+          </p>
+        </div>
+      ) : (
+        <div class="mt-8 grid gap-6 sm:grid-cols-2">
+          {cursos.map((curso) => (
+            <a
+              href={`/aula/${curso.id}`}
+              class="group overflow-hidden rounded-2xl border-2 border-primary/15 bg-white transition-global hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-lg"
+            >
+              <img
+                src={curso.data.image.src}
+                width={curso.data.image.width}
+                height={curso.data.image.height}
+                alt=""
+                aria-hidden="true"
+                class="h-40 w-full object-cover"
+              />
+              <div class="p-6">
+                <span class="text-[0.7rem] font-bold tracking-wider text-primary uppercase">
+                  {curso.data.kind}
+                </span>
+                <h2 class="mt-2 font-poppins text-[1.05rem] leading-snug font-bold text-slate-900">
+                  {curso.data.title}
+                </h2>
+                <p class="mt-2 text-[0.9rem] leading-snug text-slate-500">
+                  {curso.data.totalModules} módulos &middot; {curso.data.totalLessons} lecciones
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+      )
+    }
+  </main>
+</AulaLayout>

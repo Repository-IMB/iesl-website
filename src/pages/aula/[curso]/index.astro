@@ -1,0 +1,100 @@
+---
+// Carátula del curso: portada, introducción y temario, todo en una página.
+export const prerender = false;
+
+import { env } from "cloudflare:workers";
+import { render } from "astro:content";
+import AulaLayout from "../../../layouts/AulaLayout.astro";
+import AulaHeader from "../../../components/aula/AulaHeader.astro";
+import Caratula from "../../../components/aula/Caratula.astro";
+import IntroduccionCurso from "../../../components/aula/IntroduccionCurso.astro";
+import ModuloCard from "../../../components/aula/ModuloCard.astro";
+import { isEnrolled } from "../../../lib/aula/db";
+import { getAulaCurso, getModulosDeCurso } from "../../../lib/aula/content";
+
+const student = Astro.locals.student!;
+const slug = Astro.params.curso!;
+
+const curso = await getAulaCurso(slug);
+if (!curso) return new Response(null, { status: 404 });
+
+let matriculado = false;
+try {
+  matriculado = await isEnrolled(env.DB_AULA, student.id, slug);
+} catch (error) {
+  console.error("[aula] no se pudo verificar la matrícula:", error);
+  return new Response(
+    "El aula no está disponible en este momento. Volvé a intentar en unos minutos.",
+    { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8" } }
+  );
+}
+
+if (!matriculado) return Astro.redirect("/aula");
+
+const modulos = await getModulosDeCurso(slug);
+const { Content } = await render(curso);
+
+const primerModulo = modulos[0];
+const startHref = primerModulo ? `/aula/${slug}/modulo/${primerModulo.data.number}` : "#temario";
+
+// El proyecto final no consume número de módulo: los módulos se numeran 1..N y
+// el proyecto se muestra aparte al final del temario.
+let numeracion = 0;
+const temario = modulos.map((modulo) => ({
+  modulo,
+  position: modulo.data.isProject ? numeracion : ++numeracion,
+}));
+---
+
+<AulaLayout title={curso.data.title}>
+  <AulaHeader studentName={student.full_name || student.email} />
+
+  <main>
+    <Caratula
+      kind={curso.data.kind}
+      title={curso.data.title}
+      description={curso.data.description}
+      image={curso.data.image}
+      modality={curso.data.modality}
+      totalModules={curso.data.totalModules}
+      totalLessons={curso.data.totalLessons}
+      totalDuration={curso.data.duration.total}
+      startHref={startHref}
+    />
+
+    <IntroduccionCurso
+      objective={curso.data.objective}
+      requirement={curso.data.requirement}
+      software={curso.data.software}
+      modality={curso.data.modality}
+      duration={curso.data.duration}
+    >
+      <Content />
+    </IntroduccionCurso>
+
+    <section id="temario" class="mx-auto max-w-6xl scroll-mt-20 px-4 pb-20 sm:px-6">
+      <p class="text-[0.75rem] font-bold tracking-wider text-primary uppercase">Temario</p>
+      <h2 class="mt-2 font-poppins font-bold text-slate-900">Contenido del curso</h2>
+      <p class="mt-2 max-w-2xl text-slate-500">
+        {curso.data.totalModules} módulos y {curso.data.totalLessons} lecciones, más el proyecto
+        final. Los módulos son secuenciales: cada uno se apoya en el anterior.
+      </p>
+
+      <div class="mt-8 flex flex-col gap-5">
+        {
+          temario.map(({ modulo, position }) => (
+            <ModuloCard
+              position={position}
+              number={modulo.data.number}
+              title={modulo.data.title}
+              duration={modulo.data.duration}
+              isProject={modulo.data.isProject}
+              lessons={modulo.data.lessons}
+              href={`/aula/${slug}/modulo/${modulo.data.number}`}
+            />
+          ))
+        }
+      </div>
+    </section>
+  </main>
+</AulaLayout>

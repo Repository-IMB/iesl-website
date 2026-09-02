@@ -1,0 +1,202 @@
+---
+export const prerender = false;
+
+import AulaLayout from "../../layouts/AulaLayout.astro";
+
+// Con sesión activa no tiene sentido mostrar el formulario.
+if (Astro.locals.student) {
+  return Astro.redirect("/aula");
+}
+
+const conError = Astro.url.searchParams.get("error") === "1";
+const inputClass =
+  "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[0.95rem] outline-none transition-global focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20";
+---
+
+<AulaLayout title="Ingresar al aula">
+  <main class="grid min-h-dvh place-items-center px-4 py-12">
+    <div class="w-full max-w-[430px]">
+      <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-900/5 md:p-10">
+        <div class="text-center">
+          <span
+            class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-[0.75rem] font-bold tracking-wider text-primary uppercase"
+          >
+            Aula IESL
+          </span>
+          <h1 class="mt-4 font-poppins text-[1.6rem] font-bold text-slate-900">Ingresar</h1>
+          <p class="mt-2 text-[0.9rem] text-slate-500">
+            Usá el correo y la contraseña que te asignó IESL.
+          </p>
+        </div>
+
+        {
+          conError && (
+            <div
+              role="alert"
+              class="mt-6 rounded-xl border border-secondary/25 bg-secondary/8 px-4 py-3 text-[0.85rem] font-semibold text-secondary"
+            >
+              Correo o contraseña incorrectos.
+            </div>
+          )
+        }
+
+        <form method="POST" action="/api/aula/login" id="form-login" class="mt-6 flex flex-col gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label for="email" class="text-[0.85rem] font-semibold text-slate-700">
+              Correo electrónico
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              autocomplete="username"
+              inputmode="email"
+              class={inputClass}
+            />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label for="password" class="text-[0.85rem] font-semibold text-slate-700">
+              Contraseña
+            </label>
+            <!--
+              El botón de ver/ocultar queda fuera del <label> para que al
+              pulsarlo no se enfoque el campo.
+            -->
+            <div class="relative">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                autocomplete="current-password"
+                class={`${inputClass} pr-12`}
+              />
+              <button
+                type="button"
+                id="toggle-password"
+                aria-label="Mostrar contraseña"
+                aria-pressed="false"
+                class="absolute top-1/2 right-1.5 grid h-9 w-9 -translate-y-1/2 cursor-pointer place-items-center rounded-lg text-slate-400 transition-global hover:bg-slate-100 hover:text-primary"
+              >
+                <svg id="icon-show" viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
+                  <path
+                    d="M12 5c-5 0-9 4.5-10 7 1 2.5 5 7 10 7s9-4.5 10-7c-1-2.5-5-7-10-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"
+                  />
+                </svg>
+                <svg id="icon-hide" viewBox="0 0 24 24" class="hidden h-5 w-5 fill-current" aria-hidden="true">
+                  <path
+                    d="M2.1 3.5 3.5 2.1l18.4 18.4-1.4 1.4-3.2-3.2A11 11 0 0 1 12 19C7 19 3 14.5 2 12c.6-1.4 2-3.5 4.1-5L2.1 3.5zM12 7a5 5 0 0 1 5 5c0 .7-.15 1.36-.42 1.96l-2.2-2.2A2.5 2.5 0 0 0 11.24 9.6l-2.2-2.2C9.64 7.15 10.3 7 11 7h1zm-4.3 3.2 5.1 5.1A5 5 0 0 1 7.7 10.2z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <label class="flex cursor-pointer items-center gap-2.5 text-[0.9rem] text-slate-700">
+            <input
+              type="checkbox"
+              id="remember"
+              name="remember"
+              value="1"
+              class="h-4 w-4 accent-[var(--color-primary)]"
+            />
+            <span>Recordarme en este equipo</span>
+          </label>
+
+          <button
+            type="submit"
+            id="btn-login"
+            class="mt-1 cursor-pointer rounded-full bg-primary px-6 py-3.5 font-poppins text-[0.95rem] font-bold text-white transition-global hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Ingresar
+          </button>
+
+          <p id="login-estado" hidden class="text-center text-[0.8rem] text-slate-400">
+            Verificando tus credenciales...
+          </p>
+        </form>
+      </div>
+
+      <p class="mt-6 text-center text-[0.85rem] text-slate-500">
+        <a href="/" class="font-semibold text-primary hover:underline">Volver al sitio</a>
+      </p>
+    </div>
+  </main>
+</AulaLayout>
+
+<script>
+  const form = document.getElementById("form-login") as HTMLFormElement | null;
+  const button = document.getElementById("btn-login") as HTMLButtonElement | null;
+  const estado = document.getElementById("login-estado");
+  const email = document.getElementById("email") as HTMLInputElement | null;
+  const password = document.getElementById("password") as HTMLInputElement | null;
+  const remember = document.getElementById("remember") as HTMLInputElement | null;
+  const toggle = document.getElementById("toggle-password");
+  const iconShow = document.getElementById("icon-show");
+  const iconHide = document.getElementById("icon-hide");
+
+  // ── Ver / ocultar la contraseña ──
+  toggle?.addEventListener("click", () => {
+    if (!password) return;
+    const visible = password.type === "text";
+    password.type = visible ? "password" : "text";
+
+    toggle.setAttribute("aria-label", visible ? "Mostrar contraseña" : "Ocultar contraseña");
+    toggle.setAttribute("aria-pressed", String(!visible));
+    // classList y no la propiedad .hidden: en SVG esa propiedad no existe.
+    iconShow?.classList.toggle("hidden", !visible);
+    iconHide?.classList.toggle("hidden", visible);
+
+    password.focus();
+    const end = password.value.length;
+    password.setSelectionRange(end, end);
+  });
+
+  // ── Recordar el correo en este equipo ──
+  // Solo se guarda el correo. La contraseña no se almacena nunca: de eso se
+  // encarga el gestor de contraseñas del navegador.
+  const STORAGE_KEY = "iesl-aula-correo";
+
+  try {
+    const guardado = localStorage.getItem(STORAGE_KEY);
+    if (guardado && email && remember) {
+      email.value = guardado;
+      remember.checked = true;
+      password?.focus();
+    }
+  } catch {
+    // Modo privado o almacenamiento bloqueado: se ignora.
+  }
+
+  // ── Estado de carga ──
+  // El servidor deriva la contraseña con PBKDF2, así que el envío tarda un
+  // momento: se muestra el estado para que no parezca congelado.
+  function setLoading(active: boolean) {
+    if (!button || !estado) return;
+    button.textContent = active ? "Ingresando..." : "Ingresar";
+    button.disabled = active;
+    estado.hidden = !active;
+  }
+
+  form?.addEventListener("submit", () => {
+    try {
+      if (remember?.checked && email?.value) {
+        localStorage.setItem(STORAGE_KEY, email.value.trim());
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    } catch {
+      // Sin almacenamiento disponible: el ingreso continúa igual.
+    }
+
+    // Se desactiva en el siguiente tick: algunos navegadores cancelan el envío
+    // si el botón queda deshabilitado dentro del propio evento submit.
+    window.setTimeout(() => setLoading(true), 0);
+  });
+
+  // Al volver con el botón "atrás" la página sale de la caché con el
+  // formulario aún en estado de carga: hay que restaurarlo.
+  window.addEventListener("pageshow", () => setLoading(false));
+</script>
