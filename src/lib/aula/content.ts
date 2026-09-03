@@ -69,3 +69,42 @@ export function contarLecciones(modulos: AulaModulo[]): number {
     .filter((m) => !m.data.isProject)
     .reduce((total, m) => total + m.data.lessons.length, 0);
 }
+
+// ─── Catálogo público ───────────────────────────────────────────────────────
+
+/** Etiqueta con la que los cursos del aula aparecen en el catálogo. */
+export const CATEGORIA_BENEFICIO = "Beneficio";
+
+/**
+ * Adapta un curso del aula al formato que espera `<CourseCard />`, para que en
+ * `/cursos` se vea igual que los del catálogo comercial.
+ *
+ * No se duplica el curso en la collection `courses`: se mapea el que ya existe
+ * en `aulaCursos`, así el título, la descripción y la portada tienen una sola
+ * fuente. Se omite `rating` a propósito —no hay valoraciones reales todavía— y
+ * el enlace va al aula, donde el middleware pide sesión.
+ */
+export function aCardDeCatalogo(curso: AulaCurso) {
+  return {
+    slug: curso.id,
+    title: curso.data.title,
+    description: curso.data.description,
+    category: CATEGORIA_BENEFICIO,
+    image: curso.data.image,
+    // Se usa la misma redacción que las tarjetas del catálogo comercial
+    // ("36 horas", "18 clases", "Nivel intermedio") para que la fila se lea
+    // homogénea, en vez de la del aula ("8–10 h", "33 lecciones").
+    details: {
+      totalHours: `${curso.data.duration.total.replace(/\s*h$/, "")} horas`,
+      totalLessons: `${curso.data.totalLessons} clases`,
+      level: curso.data.level,
+    },
+    href: `/aula/${curso.id}`,
+  };
+}
+
+/** Los cursos del aula listos para renderizar en el catálogo público. */
+export async function getCursosBeneficioParaCatalogo() {
+  const cursos = await getAulaCursos();
+  return cursos.map(aCardDeCatalogo);
+}

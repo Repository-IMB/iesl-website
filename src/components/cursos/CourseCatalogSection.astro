@@ -4,9 +4,20 @@ import CourseCard from "../ui/CourseCard.astro";
 import { getCourses, getCategories } from "../../data/courses.data";
 import Button from "../ui/Button.astro";
 import Input from "../ui/Input.astro";
+import {
+  getCursosBeneficioParaCatalogo,
+  CATEGORIA_BENEFICIO,
+} from "../../lib/aula/content";
 
 const courses = await getCourses();
-const categories = await getCategories();
+const beneficios = await getCursosBeneficioParaCatalogo();
+
+// Los cursos beneficio van primero: son los que el alumno ya tiene incluido y
+// el único catálogo donde puede entrar a cursar en el momento.
+const categories = [
+  ...(beneficios.length > 0 ? [CATEGORIA_BENEFICIO] : []),
+  ...(await getCategories()),
+];
 const INITIAL_VISIBLE = 9;
 ---
 
@@ -38,6 +49,31 @@ const INITIAL_VISIBLE = 9;
   <!-- Grid de cursos -->
   <!-- Todos los cursos están en el HTML (SEO) pero el JS controla la visibilidad -->
   <div id="courses-grid" class="grid xl:grid-cols-3 lg:grid-cols-2 gap-8 mb-10">
+    <!--
+      Cursos beneficio: viven en la collection del aula, no en el catálogo
+      comercial. Usan la misma tarjeta y el enlace lleva al aula, donde el
+      middleware pide sesión.
+    -->
+    {
+      beneficios.map((curso) => (
+        <div
+          data-course
+          data-category={curso.category}
+          data-title={curso.title.toLowerCase()}
+          data-description={curso.description.toLowerCase()}
+        >
+          <CourseCard
+            title={curso.title}
+            description={curso.description}
+            tag={curso.category}
+            details={curso.details}
+            href={curso.href}
+            image={curso.image}
+            ctaLabel="Ingresar al aula"
+          />
+        </div>
+      ))
+    }
     {
       courses.map((course, index) => (
         <div
@@ -45,7 +81,7 @@ const INITIAL_VISIBLE = 9;
           data-category={course.category}
           data-title={course.title.toLowerCase()}
           data-description={course.description.toLowerCase()}
-          class={index >= INITIAL_VISIBLE ? "hidden" : ""}
+          class={index + beneficios.length >= INITIAL_VISIBLE ? "hidden" : ""}
         >
           <CourseCard
             title={course.title}

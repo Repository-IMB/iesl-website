@@ -136,6 +136,8 @@ const aulaCursos = defineCollection({
       modality: z.string(),
       requirement: z.string(),
       software: z.string(),
+      /** Mismo enum que el catálogo: la tarjeta de `/cursos` lo muestra. */
+      level: z.enum(COURSE_LEVELS),
       totalModules: z.number(),
       totalLessons: z.number(),
       duration: z.object({
