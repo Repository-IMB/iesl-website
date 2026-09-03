@@ -30,3 +30,6 @@ pnpm-debug.log*
 
 # php files
 *.php
+
+# credenciales locales (nunca al repo)
+*.local.txt

@@ -200,6 +200,10 @@ Diseño completo en `docs/specs/aula-virtual-power-bi.md`.
   npm run aula:alta -- --email admin@iesl.com --pass ClaveSegura1 --nombre Equipo IESL --admin
   ```
   Escribe en la base local; agregar `--remoto` para la de Cloudflare.
+- **Cambiar el `database_id` resetea la base D1 local.** Miniflare indexa el estado local por
+  el id, así que al reemplazarlo queda una base vacía y las rutas del aula empiezan a devolver
+  503. Se arregla corriendo de nuevo `npm run aula:schema` y las altas locales; la base vieja
+  queda huérfana en `.wrangler/state/v3/d1/`.
 - **Sin progreso ni exámenes todavía:** la estructura está preparada, pero no implementados.
 - **Un curso nuevo del aula:** crear `src/content/aula/<slug>/index.mdx` + `cover.webp` +
   `modulos/<n>-<slug>.mdx`, y matricular alumnos con `--curso <slug>`. No hace falta tocar
