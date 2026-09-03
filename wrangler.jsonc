@@ -13,15 +13,14 @@
 			"preview_bucket_name": "ieslinstitute-preview"
 		}
 	],
-	// Aula virtual: alumnos y matriculas. El database_id se completa al crear
-	// la base en la cuenta de Cloudflare del proyecto:
-	//   npx wrangler d1 create iesl-aula
-	// En local wrangler usa estado en disco (.wrangler/state/) y no necesita id.
+	// Aula virtual: alumnos y matriculas.
+	// En local wrangler ignora el database_id y usa estado en disco
+	// (.wrangler/state/); el id real solo importa para --remote y deploy.
 	"d1_databases": [
 		{
 			"binding": "DB_AULA",
 			"database_name": "iesl-aula",
-			"database_id": "local"
+			"database_id": "a5528453-c073-4698-b55f-2c647db9c50f"
 		}
 	]
 }
