@@ -64,6 +64,9 @@ export type IconName =
   | "hugeicons:megaphone-02"
   | "tabler:arrow-right"
   | "tabler:check"
-  | "lucide:circle-check-big";
+  | "lucide:circle-check-big"
+  | "tabler:device-desktop"
+  | "tabler:book"
+  | "material-symbols:signal-cellular-alt-rounded";
   
 export type Color = "primary" | "purple" | "orange" | "red" ;

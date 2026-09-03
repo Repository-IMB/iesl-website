@@ -3,13 +3,34 @@ import type { Course } from "../../../types/course.type";
 import Button from "../../ui/Button.astro";
 import { Icon } from "astro-icon/components";
 import { getWhatsAppLink } from "../../../constants/consts";
+import type { IconName } from "../../../types/icons";
 
 interface Props {
   course: Course;
+  /** Titular de la tarjeta. */
+  heading?: string;
+  /**
+   * CTA alternativo. Por defecto se inscribe por WhatsApp; los cursos
+   * beneficio ya estan pagos y llevan directo al aula.
+   */
+  ctaHref?: string;
+  ctaLabel?: string;
+  ctaIcon?: IconName;
+  /** Nota al pie del CTA, p.ej. como pedir las credenciales. */
+  ctaNote?: string;
 }
 
-const { course } = Astro.props;
+const {
+  course,
+  heading = "Comienza tu futuro hoy",
+  ctaHref,
+  ctaLabel = "Inscribirme al curso",
+  ctaIcon = "mdi:whatsapp" as IconName,
+  ctaNote,
+} = Astro.props;
 const whatsappHref = getWhatsAppLink(`Hola, deseo más información del curso de ${course.title}`);
+const href = ctaHref ?? whatsappHref;
+const isExternal = href.startsWith("http");
 ---
 
 <div class="bg-white rounded-4xl p-6 border-2 border-primary/20 relative">
@@ -21,18 +42,26 @@ const whatsappHref = getWhatsAppLink(`Hola, deseo más información del curso de
   )}
 
   <h3 class="font-poppins font-bold text-gray-900 text-2xl mb-6 leading-tight mt-2 pb-2">
-    Comienza tu futuro hoy
+    {heading}
   </h3>
 
   <!-- CTAs -->
   <div class="flex flex-col gap-4 mb-8">
-    <Button href={whatsappHref} target="_blank" icon="mdi:whatsapp" class="w-full justify-center">
-      Inscribirme al curso
+    <Button
+      href={href}
+      target={isExternal ? "_blank" : undefined}
+      icon={ctaIcon}
+      class="w-full justify-center"
+    >
+      {ctaLabel}
     </Button>
+    {ctaNote && (
+      <p class="text-center text-sm text-gray-500 font-inter leading-snug">{ctaNote}</p>
+    )}
   </div>
 
   <!-- Beneficios incluidos (Naranja claro) -->
-  {course.benefits && (
+  {course.benefits && course.benefits.length > 0 && (
     <div class="bg-[#FFF8F0] rounded-2xl p-4 mb-6 group">
       <h4 class="font-bold text-gray-900 text-base mb-2 font-inter">Beneficios incluídos</h4>
       <p class="text-gray-700 font-inter text-sm mb-4">Al comprar este curso accedes a:</p>
@@ -54,7 +83,7 @@ const whatsappHref = getWhatsAppLink(`Hola, deseo más información del curso de
   <hr class="border-gray-100 my-4" />
 
   <!-- Este curso incluye (ahora con iconos definidos) -->
-  {course.includes && (
+  {course.includes && course.includes.length > 0 && (
     <div>
       <h4 class="font-bold text-gray-900 mb-2 font-inter text-lg">Este curso incluye:</h4>
       <ul class="space-y-4 font-inter text-[15px] text-gray-700">

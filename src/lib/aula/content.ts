@@ -6,6 +6,7 @@
 
 import { getCollection, getEntry } from "astro:content";
 import type { CollectionEntry } from "astro:content";
+import type { Course } from "../../types/course.type";
 
 export type AulaCurso = CollectionEntry<"aulaCursos">;
 export type AulaModulo = CollectionEntry<"aulaModulos">;
@@ -81,8 +82,10 @@ export const CATEGORIA_BENEFICIO = "Beneficio";
  *
  * No se duplica el curso en la collection `courses`: se mapea el que ya existe
  * en `aulaCursos`, así el título, la descripción y la portada tienen una sola
- * fuente. Se omite `rating` a propósito —no hay valoraciones reales todavía— y
- * el enlace va al aula, donde el middleware pide sesión.
+ * fuente. Se omite `rating` a propósito: no hay valoraciones reales todavía.
+ *
+ * El enlace va a la ficha pública `/cursos/<slug>`, igual que el resto del
+ * catálogo, y desde ahí se entra al aula.
  */
 export function aCardDeCatalogo(curso: AulaCurso) {
   return {
@@ -99,7 +102,7 @@ export function aCardDeCatalogo(curso: AulaCurso) {
       totalLessons: `${curso.data.totalLessons} clases`,
       level: curso.data.level,
     },
-    href: `/aula/${curso.id}`,
+    href: `/cursos/${curso.id}`,
   };
 }
 
@@ -107,4 +110,56 @@ export function aCardDeCatalogo(curso: AulaCurso) {
 export async function getCursosBeneficioParaCatalogo() {
   const cursos = await getAulaCursos();
   return cursos.map(aCardDeCatalogo);
+}
+
+/**
+ * Adapta un curso del aula al tipo `Course` del catálogo, para que la ficha
+ * pública (`/cursos/<slug>`) pueda reusar tal cual los componentes de detalle
+ * y quede con el mismo diseño que los cursos comerciales.
+ *
+ * Los módulos del aula se traducen al formato del catálogo: cada lección pasa a
+ * ser un "tema" del módulo. Se omiten `rating`, `reviews`, `instructors` y
+ * `benefits` porque no hay datos reales; los componentes que los usan ya se
+ * ocultan solos cuando faltan.
+ */
+export function aFichaDeCurso(
+  curso: AulaCurso,
+  modulos: AulaModulo[]
+): Course & { titlePrefix: string } {
+  const card = aCardDeCatalogo(curso);
+
+  return {
+    // El titular del catálogo es bicolor: prefijo en gris + nombre en primary
+    // ("Cursos de **Agile Coach**"). Se replica con el tipo de curso para no
+    // romper ese patrón: "Microcurso **Power BI: Fundamentos...**".
+    titlePrefix: curso.data.kind.split(" ")[0],
+    title: curso.data.title,
+    description: curso.data.description,
+    category: CATEGORIA_BENEFICIO as "Beneficio",
+    image: curso.data.image,
+    details: card.details,
+    featured: false,
+    priceBadge: "INCLUIDO EN TU BENEFICIO",
+    learnings: curso.data.learnings,
+    // El proyecto final se excluye del acordeón: el componente del catálogo
+    // numera los módulos por posición, así que aparecería como "Módulo 7" con
+    // "1 clases". Figura en learnings y en includes, donde sí corresponde.
+    modules: modulos
+      .filter((modulo) => !modulo.data.isProject)
+      .map((modulo) => ({
+      title: modulo.data.title,
+      duration: modulo.data.duration,
+      classesCount: modulo.data.lessons.length,
+      topics: modulo.data.lessons.map(
+        (leccion) => `${leccion.title}: ${leccion.topic}`
+      ),
+    })),
+    instructors: [],
+    benefits: [],
+    includes: curso.data.includes,
+    tools: [],
+    // Sin valoraciones reales: los componentes ocultan la estrella al faltar.
+    rating: undefined,
+    reviews: undefined,
+  };
 }

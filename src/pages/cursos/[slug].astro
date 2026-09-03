@@ -11,24 +11,46 @@ import CertificationsSection from "../../components/shared/CertificationsSection
 import ContactSection from "../../components/cursos/ContactSection.astro";
 import SmartImage from "../../components/ui/SmartImage.astro";
 import certificateImg from "../../assets/images/cursos/certificado.webp";
+import { aFichaDeCurso, getModulosDeCurso } from "../../lib/aula/content";
 
+// La ruta sirve dos orígenes con el mismo diseño:
+//  - `courses`: el catálogo comercial, que se vende por WhatsApp.
+//  - `aulaCursos`: los cursos beneficio, cuya ficha lleva al aula.
+// El curso del aula no se duplica en `courses`: se mapea al mismo tipo con
+// `aFichaDeCurso()`, así el contenido tiene una sola fuente.
 export async function getStaticPaths() {
-  const entries = await getCollection("courses");
-  return entries.map((entry) => ({
-    params: { slug: entry.id },
-    props: { entry },
-  }));
+  const comerciales = await getCollection("courses");
+  const beneficios = await getCollection("aulaCursos");
+
+  return [
+    ...comerciales.map((entry) => ({
+      params: { slug: entry.id },
+      props: { entry, esBeneficio: false },
+    })),
+    ...beneficios.map((entry) => ({
+      params: { slug: entry.id },
+      props: { entry, esBeneficio: true },
+    })),
+  ];
 }
 
 interface Props {
-  entry: CollectionEntry<"courses">;
+  entry: CollectionEntry<"courses"> | CollectionEntry<"aulaCursos">;
+  esBeneficio: boolean;
 }
 
-const { entry } = Astro.props;
-const course = entry.data;
-const { Content } = await render(entry);
+const { entry, esBeneficio } = Astro.props;
+const { Content } = await render(entry as CollectionEntry<"courses">);
 
-// Módulos e instructores definidos inline en el frontmatter del curso.
+const ficha = esBeneficio
+  ? aFichaDeCurso(
+      entry as CollectionEntry<"aulaCursos">,
+      await getModulosDeCurso(entry.id)
+    )
+  : null;
+
+const course = ficha ?? (entry.data as CollectionEntry<"courses">["data"]);
+
 const modules = course.modules;
 const instructors = course.instructors;
 
@@ -77,7 +99,7 @@ const courseJsonLd: Record<string, unknown> = {
       
       <!-- Columna Principal Izquierda -->
       <div>
-        <CourseHeader course={course} />
+        <CourseHeader course={course} titlePrefix={ficha?.titlePrefix} />
         
         <div class="mt-14">
           <CourseContentBody course={course} modules={modules} instructors={instructors}>
@@ -89,14 +111,27 @@ const courseJsonLd: Record<string, unknown> = {
       <!-- Columna Derecha (espacio en el que el sticky se moverá) -->
       <aside>
         <div class="sticky top-32">
-          <CourseSidebar course={course} />
+          {esBeneficio ? (
+            <CourseSidebar
+              course={course}
+              heading="Ya tenés acceso a este curso"
+              ctaHref={`/aula/${entry.id}`}
+              ctaLabel="Ingresar al aula"
+              ctaIcon="tabler:device-desktop"
+              ctaNote="Necesitás las credenciales que te asignó IESL. Si todavía no las tenés, escribinos."
+            />
+          ) : (
+            <CourseSidebar course={course} />
+          )}
         </div>
       </aside>
 
     </div>
   </Section>
 
-  <!-- Certificados - Empieza una vez que la columna derecha y el sticky terminaron -->
+  <!-- Certificados. Se omite en los cursos beneficio: el temario del microcurso
+       no documenta certificado y no corresponde prometerlo. -->
+  {!esBeneficio && (
   <Section class="py-10">
     <div class="max-w-3xl">
       <h2 class="font-bold text-gray-900 text-3xl tracking-tight mb-8">
@@ -112,6 +147,7 @@ const courseJsonLd: Record<string, unknown> = {
       </div>
     </div>
   </Section>
+  )}
 
   <!-- Comunidad / Testimonios -->
   <!-- <TestimonialsSection 

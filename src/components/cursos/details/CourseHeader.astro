@@ -5,9 +5,15 @@ import { Icon } from "astro-icon/components";
 
 interface Props {
   course: Course;
+  /**
+   * Prefijo del titular. Los cursos del catalogo se anuncian como
+   * "Cursos de X"; un microcurso beneficio lleva su nombre tal cual.
+   */
+  titlePrefix?: string;
 }
 
-const { course } = Astro.props;
+const { course, titlePrefix = "Cursos de" } = Astro.props;
+const cleanTitle = course.title.replace("Curso de ", "").replace("Cursos de ", "");
 ---
 
 <div>
@@ -20,7 +26,7 @@ const { course } = Astro.props;
 
   <!-- Título y Descripción -->
   <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold font-poppins text-gray-900 mb-6 leading-tight tracking-tight text-balance">
-    Cursos de <span class="text-primary">{course.title.replace('Curso de ', '').replace('Cursos de ', '')}</span>
+    {titlePrefix && `${titlePrefix} `}<span class="text-primary">{cleanTitle}</span>
   </h1>
   <p class="text-gray-600 text-lg mb-8 leading-relaxed max-w-2xl font-medium">
     {course.description}
@@ -28,11 +34,18 @@ const { course } = Astro.props;
 
   <!-- Metadatos (Rating, horas, clases, nivel) -->
   <div class="flex flex-wrap items-center gap-4 md:gap-6 text-sm md:text-base font-inter text-gray-500 mb-10">
-    <div class="flex items-center gap-1.5 font-bold text-gray-600">
-      <Icon name="material-symbols:star" class="text-xl md:text-2xl text-orange-400" />
-      {course.rating} <span class="font-normal text-gray-400 ml-1">({course.reviews} estudiantes)</span>
-    </div>
-    
+    <!-- Sin valoración no se muestra la estrella: los cursos beneficio
+         recién publicados no tienen estudiantes que los hayan puntuado. -->
+    {course.rating && (
+      <div class="flex items-center gap-1.5 font-bold text-gray-600">
+        <Icon name="material-symbols:star" class="text-xl md:text-2xl text-orange-400" />
+        {course.rating}
+        {course.reviews && (
+          <span class="font-normal text-gray-400 ml-1">({course.reviews} estudiantes)</span>
+        )}
+      </div>
+    )}
+
     <div class="flex items-center gap-2">
       <Icon name="mdi:clock-outline" class="text-xl opacity-70" />
       <span>{course.details.totalHours}</span>

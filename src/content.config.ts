@@ -15,6 +15,8 @@ const COURSE_CATEGORIES = [
   "Creatividad",
   "Recursos Humanos",
   "Mantenimiento",
+  // Cursos beneficio del aula: no se venden, se acceden con credenciales.
+  "Beneficio",
 ] as const;
 
 const COURSE_LEVELS = ["Nivel inicial", "Nivel intermedio", "Nivel avanzado"] as const;
@@ -48,7 +50,7 @@ const courses = defineCollection({
         totalLessons: z.string(),
         level: z.enum(COURSE_LEVELS),
       }),
-      rating: z.string(),
+      rating: z.string().optional(),
       reviews: z.number().optional(),
       featured: z.boolean().default(false),
       priceBadge: z.string().optional(),
@@ -138,6 +140,12 @@ const aulaCursos = defineCollection({
       software: z.string(),
       /** Mismo enum que el catálogo: la tarjeta de `/cursos` lo muestra. */
       level: z.enum(COURSE_LEVELS),
+      /** Competencias que se llevan del curso, para la ficha pública. */
+      learnings: z.array(z.string()).default([]),
+      /** Qué incluye, para la barra lateral de la ficha pública. */
+      includes: z
+        .array(z.object({ label: z.string(), icon: z.string() }))
+        .default([]),
       totalModules: z.number(),
       totalLessons: z.number(),
       duration: z.object({
