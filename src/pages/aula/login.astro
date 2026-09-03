@@ -3,9 +3,10 @@ export const prerender = false;
 
 import AulaLayout from "../../layouts/AulaLayout.astro";
 
-// Con sesión activa no tiene sentido mostrar el formulario.
+// Con sesión activa no tiene sentido mostrar el formulario. El destino es el
+// mismo que elige /api/aula/login al autenticar.
 if (Astro.locals.student) {
-  return Astro.redirect("/aula");
+  return Astro.redirect(Astro.locals.student.is_admin ? "/aula/admin" : "/aula");
 }
 
 const conError = Astro.url.searchParams.get("error") === "1";

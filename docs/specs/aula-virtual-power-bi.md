@@ -18,8 +18,11 @@ que protege las rutas, y una página por módulo con todas sus partes en un solo
 **Entra:** login, carátula, introducción del curso, temario con el título de cada lección
 visible, y una página por módulo con todas sus lecciones en la misma página.
 
-**No entra en esta entrega:** exámenes, progreso por alumno, entrega de proyecto final con
-rúbrica, y panel de administración web. La estructura queda preparada para sumarlos.
+**No entra en esta entrega:** exámenes, progreso por alumno y entrega de proyecto final con
+rúbrica. La estructura queda preparada para sumarlos.
+
+**Agregado después:** panel web de administración de alumnos en `/aula/admin`, con el mismo
+login que usan los alumnos (ver "Administración" más abajo).
 
 ## Flujo
 
@@ -44,8 +47,10 @@ Todas SSR (`export const prerender = false`).
 | `/aula/login` | Formulario de acceso. Con sesión activa redirige a `/aula` |
 | `/aula/[curso]` | Carátula, introducción y temario del curso |
 | `/aula/[curso]/modulo/[n]` | Un módulo con todas sus lecciones |
+| `/aula/admin` | Panel de administración de alumnos (solo cuentas `is_admin`) |
 | `POST /api/aula/login` | Valida credenciales, crea sesión en KV, setea cookie |
 | `POST /api/aula/logout` | Destruye la sesión y limpia la cookie |
+| `POST /api/aula/admin/alumnos` | Crear, editar, cambiar contraseña y eliminar alumnos |
 
 `/aula/[curso]` es **una sola página** en tres bloques verticales:
 
@@ -160,8 +165,7 @@ PBKDF2-SHA256, 100 000 iteraciones, salt de 16 bytes, vía Web Crypto (`crypto.s
 funciona igual en workerd y en Node. Comparación en tiempo constante. Formato almacenado
 `iteraciones.saltB64.hashB64`.
 
-Alta de alumnos por script de línea de comandos (`npm run aula:alta`), no por web: el panel de
-administración queda fuera de alcance.
+Alta de alumnos por script de línea de comandos (`npm run aula:alta`) o desde el panel web.
 
 ## Piezas
 
@@ -241,3 +245,50 @@ El proyecto usa una **cuenta de Cloudflare distinta** a la de los otros proyecto
 base D1 y subir el binding requiere el acceso de wrangler de esa cuenta, que el usuario
 entrega cuando se le pide. En local no hace falta: `wrangler` guarda el estado de D1 en
 `.wrangler/state/` y la base preview es independiente de la nube.
+
+
+## Administración
+
+`/aula/admin` **no tiene un login aparte**: se entra con las mismas credenciales que usan los
+alumnos, y lo que habilita el panel es la columna `is_admin` de la cuenta. Al autenticarse, una
+cuenta con ese rol va directo al panel; el encabezado le ofrece pasar al aula y volver.
+
+Qué se puede hacer desde el panel:
+
+- Dar de alta un alumno con correo, nombre, contraseña inicial y los cursos a los que accede.
+- Editar correo, nombre y cursos habilitados.
+- Activar o desactivar la cuenta. Una cuenta inactiva no puede iniciar sesión.
+- Cambiar la contraseña de cualquier alumno.
+- Eliminar un alumno, junto con sus matrículas.
+
+### Decisiones
+
+**El rol admin solo se asigna por CLI** (`npm run aula:alta -- --admin`). Deliberado: si el
+panel pudiera quitar el rol, un clic podría dejar al aula sin administradores y sin forma de
+recuperarse por la web. Por la misma razón el panel impide que un admin elimine su propia
+cuenta o se desactive siendo el último activo.
+
+**Doble control de permisos.** El middleware filtra con el `is_admin` de la sesión, que es una
+comprobación barata en memoria. Después, la página y la ruta de API vuelven a confirmarlo
+contra D1 con `requireAdmin()`, que además exige `active = 1`. La sesión es una copia del
+estado al momento de iniciarla: si a alguien le revocan el rol, su sesión seguiría diciendo que
+es admin hasta que venza.
+
+**Formularios HTML, sin API JSON.** Las acciones son POST de formulario con un campo `accion`,
+y responden `303` de vuelta al panel con el resultado en la query string. Funcionan sin
+JavaScript, igual que el login. El único JS del panel es la confirmación antes de eliminar.
+
+### Manejo de errores
+
+| Caso | Respuesta |
+|---|---|
+| Correo con formato inválido | Vuelve al panel con el error |
+| Contraseña de menos de 8 caracteres | Vuelve al panel con el error |
+| Correo ya usado por otra cuenta | Vuelve al panel con el error |
+| Slug de curso inexistente | Se descarta en silencio; el resto de la operación sigue |
+| Admin intentando eliminarse | Se rechaza |
+| Admin intentando desactivarse siendo el último activo | Se rechaza |
+| Alumno sin rol admin sobre `/aula/admin` | Redirige a `/aula` |
+| Alumno sin rol admin sobre la API de admin | `403` |
+| Sin sesión sobre la API de admin | `401` |
+| D1 no disponible | `503`, con el error completo en el log del Worker |

@@ -47,7 +47,7 @@ const temario = modulos.map((modulo) => ({
 ---
 
 <AulaLayout title={curso.data.title}>
-  <AulaHeader studentName={student.full_name || student.email} />
+  <AulaHeader studentName={student.full_name || student.email} isAdmin={student.is_admin} />
 
   <main>
     <Caratula

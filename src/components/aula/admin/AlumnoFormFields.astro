@@ -1,0 +1,107 @@
+---
+// Campos compartidos por el formulario de alta y los de edición, para que
+// crear y editar un alumno no se desincronicen.
+interface Curso {
+  slug: string;
+  title: string;
+}
+
+interface Props {
+  /** Sufijo para que los id sean únicos cuando hay varios formularios. */
+  uid: string;
+  cursos: Curso[];
+  email?: string;
+  nombre?: string;
+  cursosActivos?: string[];
+  /** El alta pide contraseña; la edición la cambia en un formulario aparte. */
+  pedirPassword?: boolean;
+  passwordMinimo?: number;
+}
+
+const {
+  uid,
+  cursos,
+  email = "",
+  nombre = "",
+  cursosActivos = [],
+  pedirPassword = false,
+  passwordMinimo = 8,
+} = Astro.props;
+
+const inputClass =
+  "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-[0.9rem] outline-none transition-global focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20";
+const labelClass = "text-[0.8rem] font-semibold text-slate-700";
+---
+
+<div class="grid gap-4 sm:grid-cols-2">
+  <div class="flex flex-col gap-1.5">
+    <label for={`email-${uid}`} class={labelClass}>Correo electrónico</label>
+    <input
+      type="email"
+      id={`email-${uid}`}
+      name="email"
+      value={email}
+      required
+      autocomplete="off"
+      class={inputClass}
+    />
+  </div>
+
+  <div class="flex flex-col gap-1.5">
+    <label for={`nombre-${uid}`} class={labelClass}>Nombre completo</label>
+    <input
+      type="text"
+      id={`nombre-${uid}`}
+      name="nombre"
+      value={nombre}
+      autocomplete="off"
+      class={inputClass}
+    />
+  </div>
+
+  {
+    pedirPassword && (
+      <div class="flex flex-col gap-1.5">
+        <label for={`password-${uid}`} class={labelClass}>Contraseña</label>
+        <input
+          type="text"
+          id={`password-${uid}`}
+          name="password"
+          required
+          minlength={passwordMinimo}
+          autocomplete="off"
+          class={inputClass}
+        />
+        <p class="text-[0.75rem] text-slate-400">
+          Mínimo {passwordMinimo} caracteres. Se la pasás al alumno por un canal privado.
+        </p>
+      </div>
+    )
+  }
+</div>
+
+<fieldset class="mt-4">
+  <legend class={labelClass}>Cursos habilitados</legend>
+  {
+    cursos.length === 0 ? (
+      <p class="mt-2 text-[0.8rem] text-slate-400">
+        Todavía no hay cursos en el aula.
+      </p>
+    ) : (
+      <div class="mt-2 flex flex-wrap gap-2">
+        {cursos.map((curso) => (
+          <label class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-[0.8rem] font-semibold text-slate-600 transition-global hover:border-primary/40 has-checked:border-primary has-checked:bg-primary/8 has-checked:text-primary">
+            <input
+              type="checkbox"
+              name="cursos"
+              value={curso.slug}
+              checked={cursosActivos.includes(curso.slug)}
+              class="h-3.5 w-3.5 accent-[var(--color-primary)]"
+            />
+            {curso.title}
+          </label>
+        ))}
+      </div>
+    )
+  }
+</fieldset>

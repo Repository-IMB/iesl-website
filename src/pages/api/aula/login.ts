@@ -53,9 +53,17 @@ export const POST: APIRoute = async ({ request, session }) => {
   await session.regenerate();
   session.set(
     SESSION_KEY,
-    { id: student.id, email: student.email, full_name: student.full_name },
+    {
+      id: student.id,
+      email: student.email,
+      full_name: student.full_name,
+      is_admin: student.is_admin === 1,
+    },
     recordarme ? { ttl: TTL_RECORDARME } : undefined
   );
 
-  return new Response(null, { status: 303, headers: { Location: "/aula" } });
+  // Un administrador entra directo a su panel: es a lo que viene. Desde el
+  // encabezado puede pasar al aula si además está matriculado en un curso.
+  const destino = student.is_admin === 1 ? "/aula/admin" : "/aula";
+  return new Response(null, { status: 303, headers: { Location: destino } });
 };

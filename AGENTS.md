@@ -168,7 +168,9 @@ Diseño completo en `docs/specs/aula-virtual-power-bi.md`.
 | `/aula/login` | Acceso con correo y contraseña |
 | `/aula/[curso]` | Carátula, introducción y temario con el título de cada lección |
 | `/aula/[curso]/modulo/[n]` | Un módulo con **todas sus lecciones en la misma página** |
+| `/aula/admin` | Panel de administración de alumnos (solo `is_admin`) |
 | `POST /api/aula/login` · `logout` | Sesión |
+| `POST /api/aula/admin/alumnos` | Crear, editar, cambiar contraseña y eliminar alumnos |
 
 - **Sesiones:** `Astro.session` (API nativa de Astro 7) sobre el KV `SESSION` que configura el
   adapter. No hay manejo manual de cookies ni de KV. `src/lib/aula/auth.ts` solo hace PBKDF2.
@@ -182,9 +184,20 @@ Diseño completo en `docs/specs/aula-virtual-power-bi.md`.
   módulo, su presentación. Las lecciones van en el frontmatter del módulo.
 - **Videos:** `videoUrl` por lección, opcional. Vacío muestra "video pendiente de publicación".
   Se cargan editando el MDX, sin tocar código.
-- **Alta de alumnos** (no hay panel web):
+- **Administración:** `/aula/admin` usa **el mismo login que los alumnos**; lo que habilita el
+  panel es la columna `is_admin` de la cuenta, no un acceso aparte. Desde ahí se crean alumnos,
+  se elige a qué cursos acceden, se cambian contraseñas, se activan/desactivan y se eliminan.
+  Un admin entra directo al panel al autenticarse.
+- **El rol admin solo se asigna por CLI**, a propósito: así ningún clic en el panel puede dejar
+  al aula sin administradores. El panel además impide que un admin se elimine a sí mismo o se
+  desactive siendo el último activo.
+- **Doble control en las rutas de admin:** el middleware filtra por el `is_admin` de la sesión
+  (barato), y después la página y la API lo confirman contra D1 con `requireAdmin()`. La sesión
+  puede haber quedado obsoleta si a alguien le revocaron el rol.
+- **Alta por CLI:**
   ```
   npm run aula:alta -- --email ana@empresa.com --pass Clave123 --nombre Ana Perez --curso power-bi-fundamentos
+  npm run aula:alta -- --email admin@iesl.com --pass ClaveSegura1 --nombre Equipo IESL --admin
   ```
   Escribe en la base local; agregar `--remoto` para la de Cloudflare.
 - **Sin progreso ni exámenes todavía:** la estructura está preparada, pero no implementados.

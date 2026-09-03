@@ -85,6 +85,13 @@ export interface AulaSession {
   id: number;
   email: string;
   full_name: string;
+  /**
+   * Solo sirve para decidir si se muestra el acceso a administración. Las
+   * páginas y rutas de `/aula/admin` vuelven a comprobar el permiso contra D1
+   * con `requireAdmin()`: si a alguien le revocan el rol, su sesión seguiría
+   * diciendo que es admin hasta que venza.
+   */
+  is_admin: boolean;
 }
 
 export const SESSION_KEY = "aula" as const;

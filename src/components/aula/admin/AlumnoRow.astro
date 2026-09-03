@@ -1,0 +1,162 @@
+---
+// Una fila del listado de alumnos. Los formularios de edición viven dentro de
+// un <details> para que la tabla se lea de un vistazo y las acciones queden a
+// un clic sin depender de JavaScript.
+import AlumnoFormFields from "./AlumnoFormFields.astro";
+
+interface Curso {
+  slug: string;
+  title: string;
+}
+
+interface Props {
+  id: number;
+  email: string;
+  nombre: string;
+  activo: boolean;
+  esAdmin: boolean;
+  /** True si la fila es la del administrador que está usando el panel. */
+  esUnoMismo: boolean;
+  cursosActivos: string[];
+  cursos: Curso[];
+  passwordMinimo: number;
+}
+
+const {
+  id,
+  email,
+  nombre,
+  activo,
+  esAdmin,
+  esUnoMismo,
+  cursosActivos,
+  cursos,
+  passwordMinimo,
+} = Astro.props;
+
+const nombreCurso = (slug: string) => cursos.find((c) => c.slug === slug)?.title ?? slug;
+
+const botonSecundario =
+  "cursor-pointer rounded-full border border-slate-200 bg-white px-4 py-2 text-[0.8rem] font-semibold text-slate-600 transition-global hover:border-primary/40 hover:text-primary";
+const botonPrimario =
+  "cursor-pointer rounded-full bg-primary px-5 py-2 text-[0.8rem] font-bold text-white transition-global hover:bg-primary/90";
+---
+
+<article class="rounded-2xl border border-slate-200 bg-white">
+  <div class="flex flex-wrap items-start gap-4 p-5">
+    <div class="min-w-0 flex-1">
+      <div class="flex flex-wrap items-center gap-2">
+        <h3 class="font-poppins text-[1rem] font-bold text-slate-900">
+          {nombre || email}
+        </h3>
+        {
+          esAdmin && (
+            <span class="rounded-full bg-secondary/10 px-2.5 py-0.5 text-[0.65rem] font-bold tracking-wider text-secondary uppercase">
+              Admin
+            </span>
+          )
+        }
+        {
+          !activo && (
+            <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-[0.65rem] font-bold tracking-wider text-slate-500 uppercase">
+              Inactivo
+            </span>
+          )
+        }
+      </div>
+
+      {nombre && <p class="mt-0.5 text-[0.85rem] text-slate-500">{email}</p>}
+
+      <p class="mt-2 text-[0.8rem] text-slate-500">
+        {
+          cursosActivos.length === 0
+            ? "Sin cursos habilitados"
+            : cursosActivos.map(nombreCurso).join(" · ")
+        }
+      </p>
+    </div>
+
+    <div class="flex shrink-0 flex-wrap gap-2">
+      <details class="group">
+        <summary class={`${botonSecundario} list-none group-open:border-primary/40 group-open:text-primary`}>
+          Editar
+        </summary>
+        <div class="mt-3 w-full rounded-xl border border-slate-200 bg-slate-50 p-5">
+          <form method="POST" action="/api/aula/admin/alumnos">
+            <input type="hidden" name="accion" value="editar" />
+            <input type="hidden" name="id" value={String(id)} />
+
+            <AlumnoFormFields
+              uid={`edit-${id}`}
+              cursos={cursos}
+              email={email}
+              nombre={nombre}
+              cursosActivos={cursosActivos}
+            />
+
+            <label class="mt-4 flex cursor-pointer items-center gap-2.5 text-[0.85rem] text-slate-700">
+              <input
+                type="checkbox"
+                name="activo"
+                value="1"
+                checked={activo}
+                class="h-4 w-4 accent-[var(--color-primary)]"
+              />
+              <span>Cuenta activa (puede ingresar al aula)</span>
+            </label>
+
+            <div class="mt-5 flex flex-wrap gap-2">
+              <button type="submit" class={botonPrimario}>Guardar cambios</button>
+            </div>
+          </form>
+
+          <!-- Cambio de contraseña: formulario aparte para no arrastrarla en cada edición -->
+          <form
+            method="POST"
+            action="/api/aula/admin/alumnos"
+            class="mt-5 border-t border-slate-200 pt-5"
+          >
+            <input type="hidden" name="accion" value="password" />
+            <input type="hidden" name="id" value={String(id)} />
+            <label for={`nueva-${id}`} class="text-[0.8rem] font-semibold text-slate-700">
+              Nueva contraseña
+            </label>
+            <div class="mt-1.5 flex flex-wrap items-center gap-2">
+              <input
+                type="text"
+                id={`nueva-${id}`}
+                name="password"
+                required
+                minlength={passwordMinimo}
+                autocomplete="off"
+                placeholder={`Mínimo ${passwordMinimo} caracteres`}
+                class="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[0.9rem] outline-none transition-global focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+              <button type="submit" class={botonSecundario}>Cambiar</button>
+            </div>
+          </form>
+
+          {
+            !esUnoMismo && (
+              <form
+                method="POST"
+                action="/api/aula/admin/alumnos"
+                class="mt-5 border-t border-slate-200 pt-5"
+                data-confirmar={`Eliminar a ${email}? Se borran su cuenta y sus matrículas. No se puede deshacer.`}
+              >
+                <input type="hidden" name="accion" value="eliminar" />
+                <input type="hidden" name="id" value={String(id)} />
+                <button
+                  type="submit"
+                  class="cursor-pointer rounded-full border border-secondary/30 bg-white px-4 py-2 text-[0.8rem] font-semibold text-secondary transition-global hover:bg-secondary/8"
+                >
+                  Eliminar alumno
+                </button>
+              </form>
+            )
+          }
+        </div>
+      </details>
+    </div>
+  </div>
+</article>

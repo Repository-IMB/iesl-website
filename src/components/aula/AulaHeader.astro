@@ -6,9 +6,16 @@ interface Props {
   /** Ruta de vuelta y su etiqueta. Sin ruta no se muestra el enlace. */
   backHref?: string;
   backLabel?: string;
+  /** Muestra el acceso al panel de administración. */
+  isAdmin?: boolean;
 }
 
-const { studentName, backHref, backLabel = "Volver" } = Astro.props;
+const { studentName, backHref, backLabel = "Volver", isAdmin = false } = Astro.props;
+
+// En el propio panel el enlace lleva al aula; fuera de él, al panel.
+const enPanel = Astro.url.pathname.startsWith("/aula/admin");
+const adminHref = enPanel ? "/aula" : "/aula/admin";
+const adminLabel = enPanel ? "Ir al aula" : "Administración";
 const initials = studentName
   .split(" ")
   .filter(Boolean)
@@ -36,9 +43,22 @@ const initials = studentName
     }
 
     <div class="ml-auto flex items-center gap-3">
+      {
+        isAdmin && (
+          <a
+            href={adminHref}
+            class="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-secondary/30 px-3.5 py-1.5 text-[0.8rem] font-semibold text-secondary transition-global hover:bg-secondary/8"
+          >
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 fill-current" aria-hidden="true">
+              <path d="M12 2 3 6v6c0 5 3.8 9.3 9 10 5.2-.7 9-5 9-10V6l-9-4zm0 6a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zm0 11a7 7 0 0 1-4.4-1.9c.3-1.6 2.3-2.6 4.4-2.6s4.1 1 4.4 2.6A7 7 0 0 1 12 19z" />
+            </svg>
+            <span class="hidden sm:inline">{adminLabel}</span>
+          </a>
+        )
+      }
       <div class="hidden text-right sm:block">
         <p class="text-[0.8rem] leading-tight font-semibold text-slate-900">{studentName}</p>
-        <p class="text-[0.7rem] leading-tight text-slate-500">Alumno</p>
+        <p class="text-[0.7rem] leading-tight text-slate-500">{isAdmin ? "Administrador" : "Alumno"}</p>
       </div>
       <span
         class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/12 font-poppins text-[0.8rem] font-bold text-primary"

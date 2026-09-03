@@ -1,0 +1,191 @@
+---
+// Panel de administración de alumnos. Se entra con las mismas credenciales del
+// aula: lo que habilita este panel es el rol is_admin del alumno, no un login
+// aparte.
+export const prerender = false;
+
+import { env } from "cloudflare:workers";
+import AulaLayout from "../../../layouts/AulaLayout.astro";
+import AulaHeader from "../../../components/aula/AulaHeader.astro";
+import AlumnoFormFields from "../../../components/aula/admin/AlumnoFormFields.astro";
+import AlumnoRow from "../../../components/aula/admin/AlumnoRow.astro";
+import { listStudents, requireAdmin } from "../../../lib/aula/db";
+import { getAulaCursos } from "../../../lib/aula/content";
+
+const PASSWORD_MINIMO = 8;
+
+const admin = Astro.locals.student!;
+const db = env.DB_AULA;
+
+// El middleware ya filtró por la sesión; acá se confirma contra la base, que
+// es la fuente de verdad del rol.
+let alumnos;
+try {
+  if (!(await requireAdmin(db, admin.id))) return Astro.redirect("/aula");
+  alumnos = await listStudents(db);
+} catch (error) {
+  console.error("[aula/admin] no se pudo cargar el panel:", error);
+  return new Response(
+    "El panel no está disponible en este momento. Volvé a intentar en unos minutos.",
+    { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8" } }
+  );
+}
+
+const cursos = (await getAulaCursos()).map((curso) => ({
+  slug: curso.id,
+  title: curso.data.title,
+}));
+
+const parseCursos = (raw: string | null) => (raw ? raw.split(",").filter(Boolean) : []);
+
+const totalAlumnos = alumnos.filter((a) => a.is_admin !== 1).length;
+const inactivos = alumnos.filter((a) => a.active !== 1).length;
+
+const mensajeOk = Astro.url.searchParams.get("ok");
+const mensajeError = Astro.url.searchParams.get("error");
+
+const metricas = [
+  { label: "Alumnos", value: String(totalAlumnos) },
+  { label: "Cursos en el aula", value: String(cursos.length) },
+  { label: "Cuentas inactivas", value: String(inactivos) },
+];
+---
+
+<AulaLayout title="Administración de alumnos">
+  <AulaHeader studentName={admin.full_name || admin.email} isAdmin />
+
+  <main class="mx-auto max-w-5xl px-4 py-10 sm:px-6 md:py-14">
+    <p class="text-[0.75rem] font-bold tracking-wider text-secondary uppercase">Administración</p>
+    <h1 class="mt-2 font-poppins font-bold text-slate-900">Alumnos</h1>
+    <p class="mt-2 max-w-2xl text-slate-500">
+      Dá de alta alumnos, elegí a qué cursos del aula acceden y gestioná sus contraseñas.
+    </p>
+
+    {
+      mensajeOk && (
+        <div
+          role="status"
+          class="mt-6 rounded-xl border border-primary/25 bg-primary/8 px-4 py-3 text-[0.85rem] font-semibold text-primary"
+        >
+          {mensajeOk}
+        </div>
+      )
+    }
+    {
+      mensajeError && (
+        <div
+          role="alert"
+          class="mt-6 rounded-xl border border-secondary/25 bg-secondary/8 px-4 py-3 text-[0.85rem] font-semibold text-secondary"
+        >
+          {mensajeError}
+        </div>
+      )
+    }
+
+    <!--
+      En móvil cada métrica es una fila (etiqueta a la izquierda, número a la
+      derecha): a 375px las tres en columna dejaban las etiquetas partidas en
+      tres líneas. Desde sm vuelven a ser tarjetas apiladas.
+    -->
+    <dl class="mt-8 grid gap-3 sm:grid-cols-3">
+      {
+        metricas.map((metrica) => (
+          <div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 sm:block sm:py-5">
+            <dt class="text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">
+              {metrica.label}
+            </dt>
+            <dd class="font-poppins text-[1.6rem] leading-none font-bold text-slate-900 sm:mt-1">
+              {metrica.value}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <!-- Alta de un alumno nuevo -->
+    <section class="mt-10">
+      <details class="group overflow-hidden rounded-2xl border-2 border-primary/20 bg-white">
+        <summary
+          class="flex cursor-pointer list-none items-center gap-3 px-6 py-5 font-poppins text-[1rem] font-bold text-slate-900 transition-global hover:bg-primary/4"
+        >
+          <span
+            class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary text-white"
+            aria-hidden="true"
+          >
+            <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current">
+              <path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z" />
+            </svg>
+          </span>
+          Dar de alta un alumno
+        </summary>
+
+        <div class="border-t border-slate-100 bg-slate-50 p-6">
+          <form method="POST" action="/api/aula/admin/alumnos">
+            <input type="hidden" name="accion" value="crear" />
+            <AlumnoFormFields
+              uid="nuevo"
+              cursos={cursos}
+              pedirPassword
+              passwordMinimo={PASSWORD_MINIMO}
+            />
+            <button
+              type="submit"
+              class="mt-5 cursor-pointer rounded-full bg-primary px-6 py-2.5 font-poppins text-[0.85rem] font-bold text-white transition-global hover:bg-primary/90"
+            >
+              Crear alumno
+            </button>
+          </form>
+        </div>
+      </details>
+    </section>
+
+    <!-- Listado -->
+    <section class="mt-10">
+      <h2 class="font-poppins text-[1.15rem] font-bold text-slate-900">
+        Cuentas ({alumnos.length})
+      </h2>
+
+      {
+        alumnos.length === 0 ? (
+          <p class="mt-4 rounded-2xl border-2 border-dashed border-slate-200 bg-white px-6 py-10 text-center text-slate-500">
+            Todavía no hay cuentas creadas.
+          </p>
+        ) : (
+          <div class="mt-4 flex flex-col gap-3">
+            {alumnos.map((alumno) => (
+              <AlumnoRow
+                id={alumno.id}
+                email={alumno.email}
+                nombre={alumno.full_name}
+                activo={alumno.active === 1}
+                esAdmin={alumno.is_admin === 1}
+                esUnoMismo={alumno.id === admin.id}
+                cursosActivos={parseCursos(alumno.courses)}
+                cursos={cursos}
+                passwordMinimo={PASSWORD_MINIMO}
+              />
+            ))}
+          </div>
+        )
+      }
+    </section>
+
+    <p class="mt-10 text-[0.8rem] text-slate-400">
+      El rol de administrador se asigna desde la línea de comandos:
+      <code class="rounded bg-slate-100 px-1.5 py-0.5 text-slate-600">npm run aula:alta -- --admin</code>.
+      Así el panel no puede quedarse sin administradores por un clic.
+    </p>
+  </main>
+</AulaLayout>
+
+<script>
+  // Confirmación antes de una acción destructiva. El formulario lleva el texto
+  // en data-confirmar, así el markup queda sin lógica.
+  document.querySelectorAll<HTMLFormElement>("form[data-confirmar]").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      if (!window.confirm(form.dataset.confirmar ?? "¿Confirmás la acción?")) {
+        event.preventDefault();
+      }
+    });
+  });
+</script>
