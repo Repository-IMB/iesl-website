@@ -8,25 +8,135 @@ lessons:
     title: "Fundamentos de Business Intelligence"
     topic: "Conceptos de BI, datos e información para la toma de decisiones"
     videoUrl: null
+    resources:
+      - { kind: "resumen", label: "Resumen de la lección (PDF)", key: null, url: null }
+      - { kind: "practica", label: "Archivo de práctica (Excel)", key: null, url: null }
+    questions:
+      - prompt: "¿Cuál es la diferencia entre dato e información?"
+        options:
+          - "Son sinónimos: cambia solo la palabra que se usa según el contexto."
+          - "El dato es un registro en bruto; la información es el dato interpretado en un contexto que permite decidir."
+          - "La información es siempre numérica y el dato siempre es texto."
+        correctIndex: 1
+      - prompt: "¿Qué busca principalmente un proyecto de Business Intelligence?"
+        options:
+          - "Almacenar la mayor cantidad de datos posible."
+          - "Reemplazar al área de sistemas en la gestión de bases de datos."
+          - "Convertir datos dispersos en información que sostenga decisiones de negocio."
+        correctIndex: 2
+      - prompt: "En un proyecto de BI, ¿por dónde conviene empezar?"
+        options:
+          - "Por definir la pregunta de negocio que se quiere responder."
+          - "Por elegir los gráficos que va a tener el tablero."
+          - "Por comprar las licencias de la herramienta."
+        correctIndex: 0
   - code: "1.2"
     title: "Introducción a Power BI"
     topic: "Qué es Power BI, para qué sirve y principales aplicaciones"
     videoUrl: null
+    resources:
+      - { kind: "resumen", label: "Resumen de la lección (PDF)", key: null, url: null }
+    questions:
+      - prompt: "¿Qué es Power BI?"
+        options:
+          - "Una base de datos donde se almacena la información de la empresa."
+          - "Una plataforma de análisis de datos para modelar información y construir reportes interactivos."
+          - "Una hoja de cálculo con más filas que Excel."
+        correctIndex: 1
+      - prompt: "¿Cuál de estas tareas NO es un uso propio de Power BI?"
+        options:
+          - "Consolidar datos de varias fuentes en un mismo modelo."
+          - "Publicar un tablero para que el equipo lo consulte."
+          - "Administrar el servidor de correo de la organización."
+        correctIndex: 2
+      - prompt: "¿Qué ventaja aporta que un reporte de Power BI sea interactivo?"
+        options:
+          - "Que quien lo consulta puede filtrar y profundizar sin pedir un reporte nuevo."
+          - "Que se actualiza solo sin necesidad de conectar ningún origen de datos."
+          - "Que ocupa menos espacio que un reporte estático."
+        correctIndex: 0
   - code: "1.3"
     title: "Ecosistema Power BI"
     topic: "Power BI Desktop, Service y principales componentes"
     videoUrl: null
+    resources:
+      - { kind: "resumen", label: "Resumen de la lección (PDF)", key: null, url: null }
+    questions:
+      - prompt: "¿Para qué se usa Power BI Desktop?"
+        options:
+          - "Para consultar reportes publicados desde el navegador."
+          - "Para conectar orígenes, transformar datos, modelar y construir el informe."
+          - "Para administrar los permisos de los usuarios de la organización."
+        correctIndex: 1
+      - prompt: "¿Qué rol cumple Power BI Service?"
+        options:
+          - "Es la versión de escritorio donde se desarrolla el informe."
+          - "Es el complemento de Excel para tablas dinámicas."
+          - "Es la plataforma en la nube donde se publican y comparten los informes."
+        correctIndex: 2
+      - prompt: "En el flujo habitual de trabajo, ¿en qué orden se usan?"
+        options:
+          - "Primero se desarrolla en Desktop y después se publica en Service."
+          - "Primero se publica en Service y después se descarga a Desktop."
+          - "Son independientes: cada uno hace todo el trabajo por separado."
+        correctIndex: 0
   - code: "1.4"
     title: "Explorando Power BI Desktop"
     topic: "Interfaz, paneles y vistas principales"
     videoUrl: null
+    resources:
+      - { kind: "resumen", label: "Resumen de la lección (PDF)", key: null, url: null }
+      - { kind: "practica", label: "Archivo de práctica (Power BI)", key: null, url: null }
+    questions:
+      - prompt: "¿Cuáles son las tres vistas principales de Power BI Desktop?"
+        options:
+          - "Informe, Datos y Modelo."
+          - "Informe, Power Query y Service."
+          - "Datos, Medidas y Publicación."
+        correctIndex: 0
+      - prompt: "¿Para qué sirve la vista Modelo?"
+        options:
+          - "Para escribir las medidas DAX del informe."
+          - "Para ver las tablas cargadas y las relaciones entre ellas."
+          - "Para elegir la paleta de colores del tablero."
+        correctIndex: 1
+      - prompt: "¿Dónde se arrastran los campos para construir una visualización?"
+        options:
+          - "En la vista Datos, sobre la tabla."
+          - "En Power Query, antes de cargar."
+          - "En la vista Informe, sobre el panel de visualizaciones."
+        correctIndex: 2
   - code: "1.5"
     title: "Flujo de trabajo en Power BI"
     topic: "Del origen de datos al informe y dashboard"
     videoUrl: null
+    resources:
+      - { kind: "resumen", label: "Resumen de la lección (PDF)", key: null, url: null }
+    questions:
+      - prompt: "¿Cuál es el orden correcto del flujo de trabajo en Power BI?"
+        options:
+          - "Modelar → conectar → visualizar → transformar."
+          - "Conectar el origen → transformar → modelar → visualizar → publicar."
+          - "Visualizar → transformar → conectar → publicar."
+        correctIndex: 1
+      - prompt: "¿Por qué conviene limpiar los datos antes de modelarlos?"
+        options:
+          - "Porque un modelo construido sobre datos sucios arrastra el error a todas las medidas y visuales."
+          - "Porque Power BI no permite cargar datos con errores."
+          - "Porque la limpieza reduce el precio de la licencia."
+        correctIndex: 0
+      - prompt: "¿Qué diferencia hay entre un informe y un dashboard?"
+        options:
+          - "Son lo mismo con distinto nombre."
+          - "El dashboard tiene varias páginas y el informe solo una."
+          - "El informe puede tener varias páginas de análisis; el dashboard resume los indicadores clave en una vista."
+        correctIndex: 2
 ---
 
 Antes de tocar la herramienta conviene entender qué problema resuelve. Este módulo ubica a
 Power BI dentro del Business Intelligence, recorre su ecosistema y te deja familiarizado con
 la interfaz de Power BI Desktop y con el flujo completo que vas a repetir en todo el curso:
 origen de datos → transformación → modelo → informe → dashboard.
+
+Cada lección cierra con una evaluación de tres preguntas. Al aprobarla se habilita la lección
+siguiente.

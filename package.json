@@ -14,6 +14,8 @@
     "generate-types": "wrangler types",
     "aula:schema": "wrangler d1 execute iesl-aula --local --file=db/aula-schema.sql",
     "aula:schema:remoto": "wrangler d1 execute iesl-aula --remote --file=db/aula-schema.sql",
+    "aula:progreso": "wrangler d1 execute iesl-aula --local --file=db/aula-progreso.sql",
+    "aula:progreso:remoto": "wrangler d1 execute iesl-aula --remote --file=db/aula-progreso.sql",
     "aula:alta": "node scripts/aula-alta-alumno.mjs"
   },
   "dependencies": {

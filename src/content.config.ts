@@ -148,6 +148,13 @@ const aulaCursos = defineCollection({
         .default([]),
       totalModules: z.number(),
       totalLessons: z.number(),
+      /**
+       * Porcentaje mínimo para aprobar la evaluación de una lección y
+       * desbloquear la siguiente. Con 3 preguntas los únicos resultados
+       * posibles son 0, 33, 67 y 100: con 100 hay que acertar las tres, con 60
+       * alcanza con dos.
+       */
+      passScore: z.number().int().min(1).max(100).default(100),
       duration: z.object({
         videos: z.string(),
         practice: z.string(),
@@ -179,6 +186,38 @@ const aulaModulos = defineCollection({
           topic: z.string(),
           /** Vacío mientras el video no esté publicado. */
           videoUrl: z.string().nullable().default(null),
+          /**
+           * Material de apoyo descargable. `key` apunta a un objeto del bucket
+           * R2 y se sirve por `/api/aula/material`, que exige sesión y
+           * matrícula; `url` es para material alojado fuera. Sin ninguno de los
+           * dos, el material figura como pendiente de publicación.
+           */
+          resources: z
+            .array(
+              z.object({
+                kind: z.enum(["resumen", "practica", "otro"]).default("otro"),
+                label: z.string(),
+                key: z.string().nullable().default(null),
+                url: z.string().nullable().default(null),
+              })
+            )
+            .default([]),
+          /**
+           * Evaluación rápida de la lección. `correctIndex` NUNCA se envía al
+           * navegador: la corrección ocurre en el servidor.
+           *
+           * Una lección sin preguntas no bloquea el avance, así que se pueden
+           * ir cargando de a poco sin dejar el curso trabado.
+           */
+          questions: z
+            .array(
+              z.object({
+                prompt: z.string(),
+                options: z.array(z.string()).min(2),
+                correctIndex: z.number().int().min(0),
+              })
+            )
+            .default([]),
         })
       )
       .default([]),

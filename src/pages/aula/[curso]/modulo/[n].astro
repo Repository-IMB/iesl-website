@@ -1,5 +1,7 @@
 ---
-// Un módulo con todas sus lecciones en la misma página.
+// Un módulo con todas sus lecciones en la misma página. Cada lección sigue el
+// flujo video → material de apoyo → evaluación, y se desbloquea al aprobar la
+// evaluación de la anterior.
 export const prerender = false;
 
 import { env } from "cloudflare:workers";
@@ -8,7 +10,12 @@ import AulaLayout from "../../../../layouts/AulaLayout.astro";
 import AulaHeader from "../../../../components/aula/AulaHeader.astro";
 import LeccionSection from "../../../../components/aula/LeccionSection.astro";
 import { isEnrolled } from "../../../../lib/aula/db";
-import { getAulaCurso, getModuloConVecinos } from "../../../../lib/aula/content";
+import { getAulaCurso, getModuloConVecinos, getModulosDeCurso } from "../../../../lib/aula/content";
+import {
+  estadoDeLecciones,
+  getProgresoDelCurso,
+  secuenciaDeLecciones,
+} from "../../../../lib/aula/progreso";
 
 const student = Astro.locals.student!;
 const slug = Astro.params.curso!;
@@ -17,11 +24,19 @@ const numero = Number(Astro.params.n);
 const curso = await getAulaCurso(slug);
 if (!curso) return new Response(null, { status: 404 });
 
+// Un número de módulo inválido devuelve al temario en vez de un 404 seco.
+if (!Number.isInteger(numero)) return Astro.redirect(`/aula/${slug}`);
+
+const ubicacion = await getModuloConVecinos(slug, numero);
+if (!ubicacion) return Astro.redirect(`/aula/${slug}`);
+
 let matriculado = false;
+let progreso;
 try {
   matriculado = await isEnrolled(env.DB_AULA, student.id, slug);
+  progreso = await getProgresoDelCurso(env.DB_AULA, student.id, slug);
 } catch (error) {
-  console.error("[aula] no se pudo verificar la matrícula:", error);
+  console.error("[aula] no se pudo cargar el módulo:", error);
   return new Response(
     "El aula no está disponible en este momento. Volvé a intentar en unos minutos.",
     { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8" } }
@@ -30,16 +45,57 @@ try {
 
 if (!matriculado) return Astro.redirect("/aula");
 
-// Un número de módulo inválido devuelve al temario en vez de un 404 seco.
-if (!Number.isInteger(numero)) return Astro.redirect(`/aula/${slug}`);
-
-const ubicacion = await getModuloConVecinos(slug, numero);
-if (!ubicacion) return Astro.redirect(`/aula/${slug}`);
-
 const { modulo, position, total, anterior, siguiente } = ubicacion;
 const { Content } = await render(modulo);
 const { lessons, isProject } = modulo.data;
 const cursoHref = `/aula/${slug}`;
+
+// El desbloqueo es lineal en todo el curso, así que hace falta la secuencia
+// completa y no solo las lecciones de este módulo.
+const modulos = await getModulosDeCurso(slug);
+const estados = estadoDeLecciones(modulos, progreso);
+const secuencia = secuenciaDeLecciones(modulos);
+
+/** Lección que viene después de la indicada, aunque esté en otro módulo. */
+function siguienteLeccion(code: string) {
+  const indice = secuencia.findIndex((l) => l.code === code);
+  if (indice === -1 || indice === secuencia.length - 1) return null;
+
+  const proxima = secuencia[indice + 1];
+  const suModulo = modulos.find((m) => m.data.number === proxima.moduleNumber);
+  const datos = suModulo?.data.lessons.find((l) => l.code === proxima.code);
+  if (!suModulo || !datos) return null;
+
+  return {
+    titulo: `${datos.code} ${datos.title}`,
+    href:
+      `/aula/${slug}/modulo/${suModulo.data.number}` +
+      `#leccion-${datos.code.replace(/\./g, "-")}`,
+  };
+}
+
+// Resultado del intento que acaba de enviarse (llega por query string desde
+// /api/aula/evaluacion, que responde con un 303).
+const params = Astro.url.searchParams;
+const leccionEvaluada = params.get("leccion");
+const puntaje = Number(params.get("puntaje"));
+const resultadoIntento =
+  leccionEvaluada && Number.isFinite(puntaje)
+    ? {
+        code: leccionEvaluada,
+        puntaje,
+        aprobado: params.get("aprobado") === "1",
+        falladas: (params.get("falladas") ?? "")
+          .split(",")
+          .map(Number)
+          .filter(Number.isInteger),
+      }
+    : null;
+const errorEvaluacion = params.get("error");
+
+const completadasDelModulo = lessons.filter(
+  (l) => estados.get(l.code)?.completada
+).length;
 ---
 
 <AulaLayout title={`${modulo.data.title} — ${curso.data.title}`}>
@@ -73,17 +129,48 @@ const cursoHref = `/aula/${slug}`;
           {modulo.data.duration}
         </span>
         {
-          !isProject && (
+          lessons.length > 0 && (
             <span class="inline-flex items-center gap-1.5">
               <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
                 <path d="M4 5h16v2H4zm0 6h16v2H4zm0 6h10v2H4z" />
               </svg>
-              {lessons.length} {lessons.length === 1 ? "lección" : "lecciones"} en esta página
+              {completadasDelModulo} de {lessons.length}{" "}
+              {lessons.length === 1 ? "lección" : "lecciones"} completadas
             </span>
           )
         }
       </div>
+
+      <!-- Avance del módulo -->
+      {
+        lessons.length > 0 && (
+          <div
+            class="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-slate-200"
+            role="progressbar"
+            aria-valuenow={completadasDelModulo}
+            aria-valuemin="0"
+            aria-valuemax={lessons.length}
+            aria-label="Avance del módulo"
+          >
+            <div
+              class="h-full rounded-full bg-primary transition-global"
+              style={`width:${(completadasDelModulo / lessons.length) * 100}%`}
+            />
+          </div>
+        )
+      }
     </header>
+
+    {
+      errorEvaluacion && (
+        <div
+          role="alert"
+          class="mt-8 rounded-xl border border-secondary/25 bg-secondary/8 px-4 py-3 text-[0.85rem] font-semibold text-secondary"
+        >
+          {errorEvaluacion}
+        </div>
+      )
+    }
 
     <!-- Presentación del módulo (cuerpo MDX) -->
     <div
@@ -100,17 +187,48 @@ const cursoHref = `/aula/${slug}`;
             En esta página
           </p>
           <ol class="mt-3 flex flex-wrap gap-2">
-            {lessons.map((leccion) => (
-              <li>
-                <a
-                  href={`#leccion-${leccion.code.replace(/\./g, "-")}`}
-                  class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[0.8rem] font-semibold text-slate-600 ring-1 ring-slate-200 transition-global hover:text-primary hover:ring-primary/40"
-                >
-                  <span class="font-poppins font-bold text-primary">{leccion.code}</span>
-                  {leccion.title}
-                </a>
-              </li>
-            ))}
+            {lessons.map((leccion) => {
+              const estado = estados.get(leccion.code);
+              return (
+                <li>
+                  <a
+                    href={`#leccion-${leccion.code.replace(/\./g, "-")}`}
+                    class:list={[
+                      "inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[0.8rem] font-semibold ring-1 transition-global",
+                      estado?.completada
+                        ? "text-emerald-700 ring-emerald-200 hover:ring-emerald-400"
+                        : estado?.desbloqueada
+                          ? "text-slate-600 ring-slate-200 hover:text-primary hover:ring-primary/40"
+                          : "text-slate-400 ring-slate-200",
+                    ]}
+                  >
+                    <span
+                      class:list={[
+                        "font-poppins font-bold",
+                        estado?.completada
+                          ? "text-emerald-600"
+                          : estado?.desbloqueada
+                            ? "text-primary"
+                            : "text-slate-400",
+                      ]}
+                    >
+                      {leccion.code}
+                    </span>
+                    {leccion.title}
+                    {estado?.completada && (
+                      <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 shrink-0 fill-emerald-600" aria-hidden="true">
+                        <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" />
+                      </svg>
+                    )}
+                    {!estado?.desbloqueada && (
+                      <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 shrink-0 fill-slate-400" aria-hidden="true">
+                        <path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 1 1 6 0v3H9z" />
+                      </svg>
+                    )}
+                  </a>
+                </li>
+              );
+            })}
           </ol>
         </nav>
       )
@@ -119,16 +237,40 @@ const cursoHref = `/aula/${slug}`;
     <!-- Todas las lecciones, una debajo de la otra -->
     <div class="mt-8 flex flex-col gap-6">
       {
-        lessons.map((leccion, index) => (
-          <LeccionSection
-            code={leccion.code}
-            title={leccion.title}
-            topic={leccion.topic}
-            videoUrl={leccion.videoUrl}
-            index={index + 1}
-            total={lessons.length}
-          />
-        ))
+        lessons.map((leccion, index) => {
+          const estado = estados.get(leccion.code);
+          const proxima = siguienteLeccion(leccion.code);
+          return (
+            <LeccionSection
+              code={leccion.code}
+              title={leccion.title}
+              topic={leccion.topic}
+              videoUrl={leccion.videoUrl}
+              resources={leccion.resources}
+              questions={leccion.questions}
+              index={index + 1}
+              total={lessons.length}
+              cursoSlug={slug}
+              passScore={curso.data.passScore}
+              desbloqueada={estado?.desbloqueada ?? false}
+              completada={estado?.completada ?? false}
+              mejorPuntaje={estado?.mejorPuntaje ?? 0}
+              intentos={estado?.intentos ?? 0}
+              requiere={estado?.requiere ?? null}
+              resultado={
+                resultadoIntento?.code === leccion.code
+                  ? {
+                      puntaje: resultadoIntento.puntaje,
+                      aprobado: resultadoIntento.aprobado,
+                      falladas: resultadoIntento.falladas,
+                    }
+                  : null
+              }
+              siguienteTitulo={proxima?.titulo ?? null}
+              siguienteHref={proxima?.href ?? null}
+            />
+          );
+        })
       }
     </div>
 

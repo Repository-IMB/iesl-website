@@ -1,36 +1,164 @@
 ---
-// Una lección dentro de la página del módulo. Todas las lecciones del módulo
-// se apilan en la misma página, así que cada una lleva su propia ancla.
+// Una lección dentro de la página del módulo, con el flujo completo:
+//   1. video  →  2. material de apoyo  →  3. evaluación rápida
+//
+// Todas las lecciones del módulo se apilan en la misma página. Las que todavía
+// no están desbloqueadas muestran solo su encabezado: ni el video, ni el
+// material, ni las preguntas se renderizan, así que no viajan al navegador.
 import VideoSlot from "./VideoSlot.astro";
+import MaterialLeccion from "./MaterialLeccion.astro";
+import EvaluacionLeccion from "./EvaluacionLeccion.astro";
+
+interface Recurso {
+  kind: "resumen" | "practica" | "otro";
+  label: string;
+  key: string | null;
+  url: string | null;
+}
+
+interface Pregunta {
+  prompt: string;
+  options: string[];
+  correctIndex: number;
+}
 
 interface Props {
   code: string;
   title: string;
   topic: string;
   videoUrl: string | null;
+  resources: Recurso[];
+  questions: Pregunta[];
   /** Posición dentro del módulo, empezando en 1. */
   index: number;
   total: number;
+  cursoSlug: string;
+  passScore: number;
+  desbloqueada: boolean;
+  completada: boolean;
+  mejorPuntaje: number;
+  intentos: number;
+  /** Código de la lección que hay que aprobar para abrir esta. */
+  requiere: string | null;
+  resultado: { puntaje: number; aprobado: boolean; falladas: number[] } | null;
+  siguienteTitulo: string | null;
+  siguienteHref: string | null;
 }
 
-const { code, title, topic, videoUrl, index, total } = Astro.props;
+const {
+  code,
+  title,
+  topic,
+  videoUrl,
+  resources,
+  questions,
+  index,
+  total,
+  cursoSlug,
+  passScore,
+  desbloqueada,
+  completada,
+  mejorPuntaje,
+  intentos,
+  requiere,
+  resultado,
+  siguienteTitulo,
+  siguienteHref,
+} = Astro.props;
+
 const anchor = `leccion-${code.replace(/\./g, "-")}`;
+
+// Las preguntas se pasan sin `correctIndex`: la respuesta correcta no debe
+// llegar al HTML, la corrección la hace /api/aula/evaluacion.
+const preguntasPublicas = questions.map(({ prompt, options }) => ({ prompt, options }));
 ---
 
 <section id={anchor} class="scroll-mt-20">
-  <div class="rounded-2xl border-2 border-primary/12 bg-white p-6 md:p-8">
+  <div
+    class:list={[
+      "rounded-2xl border-2 bg-white p-6 md:p-8",
+      desbloqueada ? "border-primary/12" : "border-slate-200 bg-slate-50/60",
+    ]}
+  >
+    <!-- Encabezado de la lección -->
     <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-      <span class="font-poppins text-[0.8rem] font-bold text-primary">{code}</span>
+      <span
+        class:list={[
+          "font-poppins text-[0.8rem] font-bold",
+          desbloqueada ? "text-primary" : "text-slate-400",
+        ]}
+      >
+        {code}
+      </span>
       <span class="text-[0.75rem] text-slate-400">Lección {index} de {total}</span>
+      {
+        completada && (
+          <span class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[0.65rem] font-bold tracking-wider text-emerald-700 uppercase">
+            Completada
+          </span>
+        )
+      }
     </div>
 
-    <h2 class="mt-2 font-poppins text-[1.3rem] leading-snug font-bold text-slate-900 md:text-[1.5rem]">
+    <h2
+      class:list={[
+        "mt-2 font-poppins text-[1.3rem] leading-snug font-bold md:text-[1.5rem]",
+        desbloqueada ? "text-slate-900" : "text-slate-500",
+      ]}
+    >
       {title}
     </h2>
-    <p class="mt-2 leading-relaxed text-slate-600">{topic}</p>
+    <p class:list={["mt-2 leading-relaxed", desbloqueada ? "text-slate-600" : "text-slate-400"]}>
+      {topic}
+    </p>
 
-    <div class="mt-6">
-      <VideoSlot videoUrl={videoUrl} title={`${code} ${title}`} />
-    </div>
+    <!-- Si la lección está bloqueada no se renderiza nada de su contenido:
+         ni el video, ni el material, ni las preguntas llegan al navegador. -->
+    {
+      desbloqueada ? (
+        <div class="mt-6 flex flex-col gap-6">
+          {/* 1. Video de la lección */}
+          <VideoSlot videoUrl={videoUrl} title={`${code} ${title}`} />
+
+          {/* 2. Material de apoyo descargable */}
+          <MaterialLeccion recursos={resources} cursoSlug={cursoSlug} leccionCode={code} />
+
+          {/* 3. Evaluación rápida */}
+          {questions.length > 0 ? (
+            <EvaluacionLeccion
+              preguntas={preguntasPublicas}
+              cursoSlug={cursoSlug}
+              leccionCode={code}
+              passScore={passScore}
+              completada={completada}
+              mejorPuntaje={mejorPuntaje}
+              intentos={intentos}
+              resultado={resultado}
+              siguienteTitulo={siguienteTitulo}
+              siguienteHref={siguienteHref}
+            />
+          ) : (
+            <p class="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-[0.8rem] text-slate-400">
+              La evaluación de esta lección todavía no está cargada, así que la lección
+              siguiente ya está disponible.
+            </p>
+          )}
+        </div>
+      ) : (
+        <div class="mt-6 flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3.5">
+          <span
+            class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-slate-100"
+            aria-hidden="true"
+          >
+            <svg viewBox="0 0 24 24" class="h-4.5 w-4.5 fill-slate-400">
+              <path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 1 1 6 0v3H9z" />
+            </svg>
+          </span>
+          <p class="text-[0.85rem] font-semibold text-slate-500">
+            Aprobá la evaluación de la lección {requiere} para desbloquear esta.
+          </p>
+        </div>
+      )
+    }
   </div>
 </section>

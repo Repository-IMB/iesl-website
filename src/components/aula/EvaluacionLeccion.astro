@@ -1,0 +1,146 @@
+---
+// Evaluación rápida de la lección. Es un formulario POST común: se corrige en
+// el servidor y funciona sin JavaScript.
+interface Pregunta {
+  prompt: string;
+  options: string[];
+}
+
+interface Props {
+  /** Preguntas SIN la respuesta correcta: eso queda en el servidor. */
+  preguntas: Pregunta[];
+  cursoSlug: string;
+  leccionCode: string;
+  passScore: number;
+  completada: boolean;
+  mejorPuntaje: number;
+  intentos: number;
+  /** Resultado del intento que se acaba de enviar, si es esta la lección. */
+  resultado: { puntaje: number; aprobado: boolean; falladas: number[] } | null;
+  /** Título de la lección siguiente, para el mensaje de aprobación. */
+  siguienteTitulo: string | null;
+  siguienteHref: string | null;
+}
+
+const {
+  preguntas,
+  cursoSlug,
+  leccionCode,
+  passScore,
+  completada,
+  mejorPuntaje,
+  intentos,
+  resultado,
+  siguienteTitulo,
+  siguienteHref,
+} = Astro.props;
+
+const minimoAciertos = Math.ceil((passScore / 100) * preguntas.length);
+---
+
+<section aria-label="Evaluación rápida" class="rounded-2xl border border-slate-200 bg-slate-50 p-5 md:p-6">
+  <div class="flex flex-wrap items-baseline justify-between gap-2">
+    <h4 class="text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">
+      Evaluación rápida
+    </h4>
+    {
+      completada && (
+        <span class="rounded-full bg-emerald-100 px-3 py-0.5 text-[0.7rem] font-bold text-emerald-700">
+          Aprobada · {mejorPuntaje}%
+        </span>
+      )
+    }
+  </div>
+
+  <p class="mt-2 text-[0.85rem] text-slate-600">
+    {preguntas.length} {preguntas.length === 1 ? "pregunta" : "preguntas"} para reforzar lo
+    visto. Necesitás {minimoAciertos} de {preguntas.length} para desbloquear la lección
+    siguiente.
+    {intentos > 0 && ` Intentos: ${intentos}.`}
+  </p>
+
+  <!-- Resultado del último intento -->
+  {
+    resultado && (
+      <div
+        role="status"
+        class:list={[
+          "mt-4 rounded-xl border px-4 py-3 text-[0.85rem] font-semibold",
+          resultado.aprobado
+            ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+            : "border-amber-200 bg-amber-50 text-amber-800",
+        ]}
+      >
+        {
+          resultado.aprobado ? (
+            <>
+              <p>¡Aprobaste con {resultado.puntaje}%!</p>
+              {siguienteTitulo && siguienteHref && (
+                <p class="mt-1 font-normal">
+                  Ya podés seguir con{" "}
+                  <a href={siguienteHref} class="font-bold underline">
+                    {siguienteTitulo}
+                  </a>
+                  .
+                </p>
+              )}
+            </>
+          ) : (
+            <>
+              <p>Obtuviste {resultado.puntaje}%. Te faltó para el mínimo.</p>
+              {resultado.falladas.length > 0 && (
+                <p class="mt-1 font-normal">
+                  Revisá {resultado.falladas.length === 1 ? "la pregunta" : "las preguntas"}{" "}
+                  {resultado.falladas.join(", ")} y volvé a intentar.
+                </p>
+              )}
+            </>
+          )
+        }
+      </div>
+    )
+  }
+
+  <form method="POST" action="/api/aula/evaluacion" class="mt-5 flex flex-col gap-5">
+    <input type="hidden" name="curso" value={cursoSlug} />
+    <input type="hidden" name="leccion" value={leccionCode} />
+
+    {
+      preguntas.map((pregunta, indice) => (
+        <fieldset
+          class:list={[
+            "rounded-xl border bg-white p-4",
+            resultado?.falladas.includes(indice + 1)
+              ? "border-amber-300"
+              : "border-slate-200",
+          ]}
+        >
+          <legend class="px-1 text-[0.9rem] font-semibold text-slate-900">
+            {indice + 1}. {pregunta.prompt}
+          </legend>
+          <div class="mt-3 flex flex-col gap-1.5">
+            {pregunta.options.map((opcion, opcionIndice) => (
+              <label class="flex cursor-pointer items-start gap-2.5 rounded-lg px-2 py-1.5 text-[0.875rem] text-slate-700 transition-global hover:bg-slate-50">
+                <input
+                  type="radio"
+                  name={`p${indice}`}
+                  value={String(opcionIndice)}
+                  required
+                  class="mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-primary)]"
+                />
+                <span>{opcion}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ))
+    }
+
+    <button
+      type="submit"
+      class="cursor-pointer self-start rounded-full bg-primary px-6 py-2.5 font-poppins text-[0.85rem] font-bold text-white transition-global hover:bg-primary/90"
+    >
+      {completada ? "Volver a responder" : "Enviar respuestas"}
+    </button>
+  </form>
+</section>
